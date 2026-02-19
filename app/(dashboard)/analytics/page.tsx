@@ -1,18 +1,13 @@
 export const dynamic = 'force-dynamic';
 
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
-import { sellers, orders, products, messages } from "@/lib/schema";
-import { eq, count, sum, desc } from "drizzle-orm";
+import { orders, products, messages } from "@/lib/schema";
+import { eq, count, sum } from "drizzle-orm";
 import { formatRupiah } from "@/lib/utils";
 
 export default async function AnalyticsPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
-  const seller = await db.query.sellers.findFirst({ where: eq(sellers.clerkUserId, userId) });
-  if (!seller) redirect("/onboarding");
+  const seller = await getDemoSeller();
 
   const [totalOrders, totalProducts, totalMessages] = await Promise.all([
     db.select({ count: count(), total: sum(orders.total) }).from(orders).where(eq(orders.sellerId, seller.id)),
@@ -33,7 +28,6 @@ export default async function AnalyticsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Analitik</h1>
         <p className="text-gray-500 mt-1">Performa toko kamu</p>
       </div>
-
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -44,11 +38,10 @@ export default async function AnalyticsPage() {
           </div>
         ))}
       </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
         <div className="text-5xl mb-3">📊</div>
         <h2 className="text-lg font-semibold text-gray-900">Analitik detail segera hadir</h2>
-        <p className="text-gray-500 mt-2">Grafik penjualan, konversi pesan ke pesanan, dan produk terlaris akan tersedia di Sprint 2.</p>
+        <p className="text-gray-500 mt-2">Grafik penjualan dan konversi akan tersedia di Sprint 2.</p>
       </div>
     </div>
   );
