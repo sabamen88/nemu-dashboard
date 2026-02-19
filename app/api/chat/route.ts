@@ -1,67 +1,95 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
-import { products, orders } from "@/lib/schema";
+import { products } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const MINIMAX_BASE_URL = "https://api.minimax.io/v1";
+const MINIMAX_MODEL = "MiniMax-Text-01";
 
-function buildSystemPrompt(seller: {
-  storeName: string;
-  category: string;
-  description: string | null;
-  storeSlug: string;
-  inviteCode: string;
-  isFoundingSeller: boolean;
-}, catalog: { name: string; price: string; stock: number; description: string | null }[]) {
-  const catalogText = catalog.length > 0
-    ? catalog.map(p => `- ${p.name}: Rp ${Number(p.price).toLocaleString("id-ID")} (stok: ${p.stock})`).join("\n")
-    : "Belum ada produk di katalog.";
+// MiniMax does not support role:system — merge into first user message
+function buildMessages(
+  systemPrompt: string,
+  history: { role: string; content: string }[]
+) {
+  if (history.length === 0) return [];
+
+  const merged = [...history];
+  // Prepend system prompt to the first user message
+  if (merged[0].role === "user") {
+    merged[0] = {
+      role: "user",
+      content: `[Instruksi Sistem]\n${systemPrompt}\n\n[Pesan Pembeli]\n${merged[0].content}`,
+    };
+  }
+  return merged;
+}
+
+function buildSystemPrompt(
+  seller: {
+    storeName: string;
+    category: string;
+    description: string | null;
+    storeSlug: string;
+    inviteCode: string;
+    isFoundingSeller: boolean;
+  },
+  catalog: { name: string; price: string; stock: number }[]
+) {
+  const catalogText =
+    catalog.length > 0
+      ? catalog
+          .map(
+            (p) =>
+              `- ${p.name}: Rp ${Number(p.price).toLocaleString("id-ID")} (stok: ${p.stock})`
+          )
+          .join("\n")
+      : "Belum ada produk di katalog.";
 
   return `Kamu adalah agen AI untuk toko "${seller.storeName}" di platform Nemu AI.
+Kamu adalah asisten penjual yang cerdas — bukan chatbot generik.
 
-Kamu berbicara bahasa Indonesia yang natural — seperti CS toko online profesional.
-Santai tapi tepercaya. Singkat dan jelas. Gunakan "kak" untuk menyapa.
+CARA BICARA:
+- Bahasa Indonesia natural, seperti CS toko online profesional
+- Sapaan: "kak" (gender-neutral)
+- Singkat dan langsung — maksimal 3 kalimat per balasan
+- Emoji boleh tapi tidak lebay (1-2 per pesan)
+- Kalau tidak tahu, jujur: "saya cek dulu ya kak"
 
-## Identitas Toko
+IDENTITAS TOKO:
 - Nama: ${seller.storeName}
 - Kategori: ${seller.category}
-- Deskripsi: ${seller.description || "Toko online terpercaya"}
-- Link toko: https://nemu-ai.com/toko/${seller.storeSlug}
+- Deskripsi: ${seller.description || "Toko online terpercaya di Nemu AI"}
+- Link: https://nemu-ai.com/toko/${seller.storeSlug}
 - Kode undangan: ${seller.inviteCode}
 ${seller.isFoundingSeller ? "- Status: Founding Seller 🏆" : ""}
 
-## Katalog Produk (real-time)
+KATALOG PRODUK (data real-time):
 ${catalogText}
 
-## Prinsip Utama
-- Jujur lebih penting dari ramah. Stok habis = bilang habis.
-- Balas dalam 1-3 kalimat singkat. Orang malas baca panjang di WhatsApp.
-- Kalau ditanya harga/stok, langsung jawab dari katalog di atas.
-- Kalau produk tidak ada, sarankan produk lain yang relevan.
-- Kalau diminta diskon/negosiasi, tolak dengan sopan dan tawarkan value lain.
-- Jangan pernah memberikan informasi pribadi penjual.
+ATURAN:
+- Stok habis = bilang habis, jangan janji restock tanpa kepastian
+- Ditawar/minta diskon = tolak sopan, tawarkan value lain
+- Pertanyaan di luar kemampuan = eskalasi ke pemilik toko
+- JANGAN beri info pribadi penjual (HP pribadi, alamat rumah, rekening)
+- Semua pembelian lewat: https://nemu-ai.com/toko/${seller.storeSlug}
 
-## Cara Bicara
-- Emoji boleh tapi jangan lebay (maks 1-2 per pesan)
-- Kalau tidak tahu, bilang "saya cek dulu ya kak"
-- Untuk pesanan, arahkan ke: https://nemu-ai.com/toko/${seller.storeSlug}
-
-Kamu sedang dalam mode DEMO — tunjukkan bagaimana kamu akan merespons pembeli sungguhan.`;
+Kamu ditenagai oleh MiniMax M2.5 via Nemu AI. Mode demo aktif.`;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, mode = "buyer" } = await req.json();
+    const apiKey = process.env.MINIMAX_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "MINIMAX_API_KEY not configured" }, { status: 500 });
+    }
 
+    const { messages } = await req.json();
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "messages required" }, { status: 400 });
     }
 
     const seller = await getDemoSeller();
-
-    // Fetch real catalog for context
     const catalog = await db.query.products.findMany({
       where: eq(products.sellerId, seller.id),
       orderBy: [desc(products.createdAt)],
@@ -69,32 +97,64 @@ export async function POST(req: NextRequest) {
     });
 
     const systemPrompt = buildSystemPrompt(seller, catalog);
+    const minimaxMessages = buildMessages(systemPrompt, messages);
 
-    // Stream response
+    // Stream from MiniMax
+    const response = await fetch(`${MINIMAX_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MINIMAX_MODEL,
+        messages: minimaxMessages,
+        stream: true,
+        max_tokens: 300,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("MiniMax error:", err);
+      return NextResponse.json({ error: "MiniMax API error", detail: err }, { status: 502 });
+    }
+
+    // Proxy the SSE stream back to the client
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        try {
-          const anthropicStream = await client.messages.stream({
-            model: "claude-haiku-3-5-latest",  // Fast + cheap for chat
-            max_tokens: 256,
-            system: systemPrompt,
-            messages: messages.map((m: { role: string; content: string }) => ({
-              role: m.role as "user" | "assistant",
-              content: m.content,
-            })),
-          });
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
 
-          for await (const chunk of anthropicStream) {
-            if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`));
+        try {
+          while (reader) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const data = line.slice(6).trim();
+              if (data === "[DONE]") {
+                controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                continue;
+              }
+              try {
+                const parsed = JSON.parse(data);
+                const text = parsed.choices?.[0]?.delta?.content;
+                if (text) {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
+                  );
+                }
+              } catch {}
             }
           }
-
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        } catch (err) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Stream failed" })}\n\n`));
+        } finally {
           controller.close();
         }
       },
@@ -108,6 +168,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
+    console.error("Chat route error:", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
