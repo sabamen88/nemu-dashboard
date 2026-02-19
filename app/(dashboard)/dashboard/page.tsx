@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic';
+
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { sellers, products, orders, messages, walletEvents } from "@/lib/schema";
-import { eq, count, sum, gte, desc } from "drizzle-orm";
+import { sellers, products, orders, messages } from "@/lib/schema";
+import { eq, count, desc } from "drizzle-orm";
 import { formatRupiah } from "@/lib/utils";
 import AgentToggle from "./agent-toggle";
 
@@ -15,25 +17,14 @@ export default async function DashboardPage() {
   });
   if (!seller) redirect("/onboarding");
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
-
-  const [productCount, pendingOrders, todayMessages, recentOrders, lowStock] = await Promise.all([
-    db.select({ count: count() }).from(products)
-      .where(eq(products.sellerId, seller.id)),
-    db.select({ count: count() }).from(orders)
-      .where(eq(orders.sellerId, seller.id)),
-    db.select({ count: count() }).from(messages)
-      .where(eq(messages.sellerId, seller.id)),
+  const [productCount, pendingOrders, todayMessages, recentOrders] = await Promise.all([
+    db.select({ count: count() }).from(products).where(eq(products.sellerId, seller.id)),
+    db.select({ count: count() }).from(orders).where(eq(orders.sellerId, seller.id)),
+    db.select({ count: count() }).from(messages).where(eq(messages.sellerId, seller.id)),
     db.query.orders.findMany({
       where: eq(orders.sellerId, seller.id),
       orderBy: [desc(orders.createdAt)],
       limit: 5,
-    }),
-    db.query.products.findMany({
-      where: eq(products.sellerId, seller.id),
-      limit: 3,
     }),
   ]);
 
@@ -46,7 +37,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
           Halo! 👋 Selamat datang di {seller.storeName}
@@ -57,12 +47,10 @@ export default async function DashboardPage() {
             className="text-blue-600 hover:underline" target="_blank">
             nemu-ai.com/toko/{seller.storeSlug}
           </a>
-          {" · "}
-          Kode undangan: <span className="font-mono font-medium">{seller.inviteCode}</span>
+          {" · "}Kode undangan: <span className="font-mono font-medium">{seller.inviteCode}</span>
         </p>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -74,7 +62,6 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* AI Agent Card */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -98,7 +85,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Orders */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
