@@ -1,9 +1,6 @@
-import { SignUp } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
+// Demo mode: no auth — redirect directly to dashboard
 export default function SignUpPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <SignUp />
-    </div>
-  );
+  redirect("/dashboard");
 }
