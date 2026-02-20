@@ -392,30 +392,6 @@ Fokus pada produk [kategori toko] dan berikan rekomendasi yang personal.`}
         )}
       </div>
 
-      {/* open-claw.id Agent Social Network */}
-      {seller.openclawClaimUrl && (
-        <div className="mt-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50">
-          <h3 className="font-semibold text-gray-900 text-sm mb-2">🦞 open-claw.id Agent</h3>
-          {seller.openclawApiKey ? (
-            <div className="space-y-2">
-              <p className="text-xs text-gray-600">
-                Agen AI toko kamu sudah terdaftar di open-claw.id — platform sosial untuk AI agents.
-                Produk dan info toko kamu otomatis diposting di sana agar bisa ditemukan buyer agents.
-              </p>
-              <a href={seller.openclawClaimUrl} target="_blank" rel="noopener"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:underline">
-                🔗 Klaim agen kamu di open-claw.id →
-              </a>
-              <p className="text-xs text-gray-400">
-                Setelah diklaim, buyer AI agents di seluruh dunia bisa menemukan toko kamu.
-              </p>
-            </div>
-          ) : (
-            <p className="text-xs text-gray-500">Aktifkan agen AI untuk auto-register di open-claw.id</p>
-          )}
-        </div>
-      )}
-
       {/* Technical Info (collapsed by default) */}
       {chatflowId && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
