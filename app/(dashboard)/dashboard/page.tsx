@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
 import { products, orders, messages } from "@/lib/schema";
-import { eq, count, desc, and, sql } from "drizzle-orm";
+import { eq, count, desc, and, sql, lte } from "drizzle-orm";
 import { formatRupiah, ORDER_STATUS_LABELS } from "@/lib/utils";
 import AgentToggle from "./agent-toggle";
 import WalletCard from "./wallet-card";
@@ -23,7 +23,7 @@ export default async function DashboardPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [productCount, todayOrderCount, unreadCount, walletTotal, recentOrders] = await Promise.all([
+  const [productCount, todayOrderCount, unreadCount, walletTotal, recentOrders, lowStockResult] = await Promise.all([
     db.select({ count: count() }).from(products)
       .where(and(eq(products.sellerId, seller.id), eq(products.status, "active"))),
     db.select({ count: count() }).from(orders)
@@ -37,7 +37,11 @@ export default async function DashboardPage() {
       orderBy: [desc(orders.createdAt)],
       limit: 5,
     }),
+    db.select({ count: count() }).from(products)
+      .where(and(eq(products.sellerId, seller.id), eq(products.status, "active"), lte(products.stock, 5))),
   ]);
+
+  const lowStockCount = lowStockResult[0].count;
 
   const stats = [
     {
@@ -106,6 +110,24 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      {/* Low Stock Alert */}
+      {lowStockCount > 0 && (
+        <Link
+          href="/catalog"
+          className="flex items-center gap-3 rounded-2xl px-5 py-4 text-white font-medium text-sm hover:opacity-90 transition"
+          style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+        >
+          <span className="text-xl">⚠️</span>
+          <span>
+            <strong>{lowStockCount} produk hampir habis stok!</strong>{" "}
+            Segera update katalogmu.
+          </span>
+          <span className="ml-auto text-pink-200 text-xs font-semibold whitespace-nowrap">
+            Lihat Katalog →
+          </span>
+        </Link>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
