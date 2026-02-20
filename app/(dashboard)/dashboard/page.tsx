@@ -6,6 +6,7 @@ import { products, orders, messages } from "@/lib/schema";
 import { eq, count, desc, and, sql } from "drizzle-orm";
 import { formatRupiah, ORDER_STATUS_LABELS } from "@/lib/utils";
 import AgentToggle from "./agent-toggle";
+import WalletCard from "./wallet-card";
 import Link from "next/link";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -61,11 +62,11 @@ export default async function DashboardPage() {
       href: "/messages",
     },
     {
-      label: "Saldo Wallet",
-      value: "0 USDC",
+      label: "Wallet USDC",
+      value: "Lihat →",
       icon: "💰",
       color: "bg-green-50 text-green-600",
-      href: "/settings",
+      href: "/wallet",
     },
   ];
 
@@ -136,6 +137,11 @@ export default async function DashboardPage() {
                 <span className="text-base">🏪</span> Buka Toko →
               </a>
             </div>
+          </div>
+
+          {/* Wallet Mini Card */}
+          <div className="mt-4">
+            <WalletCard />
           </div>
         </div>
 

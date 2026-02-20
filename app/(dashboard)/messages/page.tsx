@@ -298,7 +298,7 @@ export default function MessagesPage() {
             </button>
           </form>
           <p className="text-xs text-gray-400 mt-2 text-center">
-            Ditenagai oleh Claude · Persona: Agen Toko {mode === "buyer" ? "menjawab pembeli" : "melapor ke pemilik"}
+            Ditenagai oleh MiniMax M2.5 · Persona: Agen Toko {mode === "buyer" ? "menjawab pembeli" : "melapor ke pemilik"}
           </p>
         </div>
       </div>

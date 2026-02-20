@@ -7,6 +7,7 @@ import { eq, desc } from "drizzle-orm";
 import { formatRupiah } from "@/lib/utils";
 import Link from "next/link";
 import CatalogGrid from "./catalog-grid";
+import CsvImportButton from "./csv-import";
 
 export default async function CatalogPage({
   searchParams,
@@ -32,13 +33,16 @@ export default async function CatalogPage({
           <h1 className="text-2xl font-bold text-gray-900">Katalog Produk</h1>
           <p className="text-gray-500 mt-1">{allProducts.length} produk terdaftar</p>
         </div>
-        <Link
-          href="/catalog/new"
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl shadow-sm hover:opacity-90 transition"
-          style={{ backgroundColor: '#E91E63' }}
-        >
-          <span>+</span> Tambah Produk
-        </Link>
+        <div className="flex items-center gap-3">
+          <CsvImportButton />
+          <Link
+            href="/catalog/new"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl shadow-sm hover:opacity-90 transition"
+            style={{ backgroundColor: '#E91E63' }}
+          >
+            <span>+</span> Tambah Produk
+          </Link>
+        </div>
       </div>
 
       {/* Filter Tabs */}

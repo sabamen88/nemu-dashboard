@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { getDemoSeller } from "@/lib/demo-session";
 import { getPresignedUrl } from "@/lib/r2";

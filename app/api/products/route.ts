@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
@@ -7,9 +9,10 @@ import { z } from "zod";
 
 const productSchema = z.object({
   name: z.string().min(1).max(200),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   price: z.number().min(0),
   stock: z.number().min(0).default(0),
+  weight: z.number().min(0).optional().nullable(),
   images: z.array(z.string()).default([]),
   status: z.enum(["active", "draft", "archived"]).default("active"),
 });

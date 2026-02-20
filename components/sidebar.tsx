@@ -10,6 +10,7 @@ const nav = [
   { href: "/catalog", label: "Katalog", emoji: "📦" },
   { href: "/orders", label: "Pesanan", emoji: "🛒" },
   { href: "/messages", label: "Pesan", emoji: "💬" },
+  { href: "/wallet", label: "Wallet", emoji: "💰" },
   { href: "/analytics", label: "Analitik", emoji: "📊" },
   { href: "/settings", label: "Pengaturan", emoji: "⚙️" },
 ];
