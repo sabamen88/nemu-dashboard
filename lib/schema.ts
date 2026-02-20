@@ -17,6 +17,8 @@ export const sellers = pgTable("sellers", {
   agentWalletAddress: text("agent_wallet_address"),
   agentSpongeId: text("agent_sponge_id"),
   agentApiKey: text("agent_api_key"),
+  agentChatflowId: text("agent_chatflow_id"), // Flowise chatflow ID
+  aiCustomPrompt: text("ai_custom_prompt"), // Custom system prompt personality
   autoReply: boolean("auto_reply").notNull().default(true),
   // Meta
   isFoundingSeller: boolean("is_founding_seller").notNull().default(false),

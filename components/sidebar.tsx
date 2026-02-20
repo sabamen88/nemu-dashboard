@@ -8,6 +8,7 @@ import type { Seller } from "@/lib/schema";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", emoji: "🏠" },
+  { href: "/agent", label: "Agen AI", emoji: "🤖" },
   { href: "/catalog", label: "Katalog", emoji: "📦" },
   { href: "/orders", label: "Pesanan", emoji: "🛒" },
   { href: "/messages", label: "Pesan", emoji: "💬" },
