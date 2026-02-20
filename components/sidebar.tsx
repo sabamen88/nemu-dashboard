@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { Seller } from "@/lib/schema";
 
@@ -17,12 +18,18 @@ const nav = [
 
 export default function Sidebar({ seller }: { seller: Seller }) {
   const path = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [path]);
+
+  const SidebarContent = () => (
+    <>
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-100">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E91E63' }}>
             <span className="text-white text-sm font-bold">N</span>
           </div>
@@ -63,6 +70,7 @@ export default function Sidebar({ seller }: { seller: Seller }) {
             <Link
               key={href}
               href={href}
+              onClick={() => setMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 isActive
@@ -100,6 +108,60 @@ export default function Sidebar({ seller }: { seller: Seller }) {
           <span>→</span>
         </a>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E91E63' }}>
+            <span className="text-white text-xs font-bold">N</span>
+          </div>
+          <span className="font-bold text-lg" style={{ color: '#E91E63' }}>nemu</span>
+          <span className="font-bold text-lg text-gray-900">AI</span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-30 bg-black/50"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile Drawer */}
+      <aside className={cn(
+        "lg:hidden fixed top-0 left-0 z-40 w-72 h-full bg-white flex flex-col shadow-xl transition-transform duration-300",
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <SidebarContent />
+      </aside>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-white border-r border-gray-200 flex-col h-screen sticky top-0">
+        <SidebarContent />
+      </aside>
+    </>
   );
 }

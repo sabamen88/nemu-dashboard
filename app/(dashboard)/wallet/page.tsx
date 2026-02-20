@@ -101,6 +101,18 @@ export default function WalletPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+      {/* Testnet Banner */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
+        <span className="text-lg">⚠️</span>
+        <div>
+          <span className="font-semibold">Mode Testnet</span>
+          <span className="ml-2 text-amber-600">— untuk demo saja. Saldo tidak bernilai nyata.</span>
+        </div>
+        <span className="ml-auto text-xs bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full font-semibold border border-amber-200">
+          Base Sepolia
+        </span>
+      </div>
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">💰 Nemu Wallet</h1>

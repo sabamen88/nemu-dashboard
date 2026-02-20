@@ -266,7 +266,16 @@ export default function OnboardingPage() {
           {currentStep === 3 && (
             <div className="flex justify-center mt-4">
               <button
-                onClick={() => router.push("/dashboard")}
+                onClick={async () => {
+                  try {
+                    await fetch("/api/seller", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ onboardingComplete: true }),
+                    });
+                  } catch {}
+                  router.push("/dashboard");
+                }}
                 className="px-8 py-3 text-white font-semibold rounded-2xl shadow-lg transition hover:opacity-90 text-sm"
                 style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
               >
