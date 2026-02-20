@@ -7,6 +7,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
+  orderCreated?: boolean;
 }
 
 const SYSTEM_PROMPT = `Kamu adalah Nemu Assistant, asisten AI untuk platform Nemu — marketplace generasi baru di Indonesia.
@@ -140,25 +141,42 @@ export default function ChatWidget() {
 
         if (!res.ok) throw new Error("Chat error");
 
-        const reader = res.body?.getReader();
-        const decoder = new TextDecoder();
-        let full = "";
+        // Check if the response is JSON (order confirmation) or a stream
+        const contentType = res.headers.get("content-type") ?? "";
+        if (contentType.includes("application/json")) {
+          // Non-streamed order confirmation response
+          const data = await res.json() as { message?: string; orderCreated?: boolean; orderId?: string };
+          if (data.message) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: data.message!, orderCreated: data.orderCreated }
+                  : m
+              )
+            );
+          }
+        } else {
+          // Streamed response (normal Q&A)
+          const reader = res.body?.getReader();
+          const decoder = new TextDecoder();
+          let full = "";
 
-        while (reader) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          for (const line of chunk.split("\n")) {
-            if (line.startsWith("data: ") && line !== "data: [DONE]") {
-              try {
-                const d = JSON.parse(line.slice(6));
-                if (d.text) {
-                  full += d.text;
-                  setMessages((prev) =>
-                    prev.map((m) => (m.id === assistantId ? { ...m, content: full } : m))
-                  );
-                }
-              } catch {}
+          while (reader) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+            for (const line of chunk.split("\n")) {
+              if (line.startsWith("data: ") && line !== "data: [DONE]") {
+                try {
+                  const d = JSON.parse(line.slice(6));
+                  if (d.text) {
+                    full += d.text;
+                    setMessages((prev) =>
+                      prev.map((m) => (m.id === assistantId ? { ...m, content: full } : m))
+                    );
+                  }
+                } catch {}
+              }
             }
           }
         }
@@ -291,6 +309,12 @@ export default function ChatWidget() {
                     renderContent(msg.content)
                   )}
                 </div>
+                {msg.orderCreated && (
+                  <span className="mt-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                    style={{ backgroundColor: "#d1fae5", color: "#065f46" }}>
+                    🛍️ Pesanan dibuat
+                  </span>
+                )}
               </div>
             </div>
           ))}
