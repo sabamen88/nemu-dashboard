@@ -37,10 +37,10 @@ function timeLabel(isoString: string): string {
 }
 
 export default function MessagesView({ conversations, agentActive }: Props) {
-  const [selected, setSelected] = useState<Conversation | null>(
-    conversations.length > 0 ? conversations[0] : null
-  );
+  const [selected, setSelected] = useState<Conversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  // On mobile: show list (false) or chat (true)
+  const [mobileShowChat, setMobileShowChat] = useState(false);
 
   const filteredConvs = conversations.filter(
     (c) =>
@@ -49,9 +49,9 @@ export default function MessagesView({ conversations, agentActive }: Props) {
   );
 
   return (
-    <div className="flex" style={{ height: '100vh' }}>
-      {/* Left Panel — Conversation List */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+    <div className="flex" style={{ height: 'calc(100vh - 3.5rem)' }}>
+      {/* Left Panel — Conversation List (hidden on mobile when chat open) */}
+      <div className={`${mobileShowChat ? 'hidden' : 'flex'} sm:flex w-full sm:w-80 bg-white border-r border-gray-200 flex-col flex-shrink-0`}>
         {/* Header */}
         <div className="px-4 py-4 border-b border-gray-100">
           <h1 className="text-lg font-bold text-gray-900">Pesan WhatsApp</h1>
@@ -89,7 +89,7 @@ export default function MessagesView({ conversations, agentActive }: Props) {
             filteredConvs.map((conv) => (
               <button
                 key={conv.phone}
-                onClick={() => setSelected(conv)}
+                onClick={() => { setSelected(conv); setMobileShowChat(true); }}
                 className={`w-full text-left px-4 py-3.5 border-b border-gray-50 hover:bg-gray-50 transition ${
                   selected?.phone === conv.phone ? "bg-indigo-50" : ""
                 }`}
@@ -126,14 +126,22 @@ export default function MessagesView({ conversations, agentActive }: Props) {
         </div>
       </div>
 
-      {/* Right Panel — Chat View */}
-      <div className="flex-1 flex flex-col" style={{ backgroundColor: '#F5F5F5' }}>
+      {/* Right Panel — Chat View (hidden on mobile when list showing) */}
+      <div className={`${!mobileShowChat ? 'hidden' : 'flex'} sm:flex flex-1 flex-col`} style={{ backgroundColor: '#F5F5F5' }}>
         {selected ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white border-b border-gray-200 px-5 py-4 flex items-center gap-3 shadow-sm">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white"
-                style={{ backgroundColor: '#4f39f6' }}>
+            <div className="bg-white border-b border-gray-200 px-4 py-3.5 flex items-center gap-3 shadow-sm">
+              {/* Back button — mobile only */}
+              <button
+                onClick={() => setMobileShowChat(false)}
+                className="sm:hidden p-1.5 -ml-1 rounded-lg hover:bg-gray-100 text-gray-600 transition"
+                aria-label="Kembali"
+              >
+                ←
+              </button>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
+                style={{ backgroundColor: '#7B5CF0' }}>
                 {selected.name[0]?.toUpperCase()}
               </div>
               <div>

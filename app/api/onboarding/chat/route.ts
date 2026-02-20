@@ -7,8 +7,8 @@ import { sellers } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { generateSlug } from "@/lib/utils";
 
-// Step flow: language → welcome → store_name → category → description → phone → complete
-const STEP_ORDER = ["language", "welcome", "store_name", "category", "description", "phone", "complete"];
+// Step flow: language → store_name → category → description → phone → complete
+const STEP_ORDER = ["language", "store_name", "category", "description", "phone", "complete"];
 
 function getNextStep(currentStep: string): string {
   const idx = STEP_ORDER.indexOf(currentStep);
@@ -29,21 +29,17 @@ function buildSystemPrompt(step: string, context: Record<string, string>): strin
   switch (step) {
     case "language":
       stepInstruction = `Sampaikan salam pembuka yang hangat dalam DUA bahasa (Indonesia dan English).
-Contoh pesan: "Halo! Selamat datang di Nemu AI 👋 Mau pakai Bahasa Indonesia atau English? / Hello! Welcome to Nemu AI 👋 Would you like to continue in Bahasa Indonesia or English?"
+Contoh: "Halo! Selamat datang di Nemu AI 👋 Mau pakai Bahasa Indonesia atau English? / Hello! Welcome to Nemu AI 👋 Would you like to continue in Bahasa Indonesia or English?"
 HANYA tanya pilihan bahasa — jangan tanya hal lain.`;
       break;
-    case "welcome":
-      stepInstruction = `Perkenalkan Nemu AI dengan singkat dan semangat.
-Jelaskan bahwa setup toko hanya butuh 2 menit.
-Akhiri dengan pertanyaan: "Siap mulai? Kira-kira nama toko kamu apa?" (atau English jika user pilih English)
-HANYA tanya nama toko — jangan tanya hal lain.`;
-      break;
     case "store_name":
-      stepInstruction = `Validasi nama toko yang diberikan user (minimal 3 karakter).
-Jika valid: konfirmasi nama toko dengan semangat, tunjukkan slug yang akan dibuat (contoh: "toko-kamu"), lalu tanya kategori.
-Jika tidak valid: minta ulang dengan ramah dan berikan contoh nama toko yang bagus.
-HANYA tanya kategori jika nama sudah valid — jangan tanya hal lain.
-Tawarkan 6 kategori: Fashion & Pakaian, Makanan & Minuman, Elektronik, Kecantikan & Perawatan, Kerajinan & Hobi, Lainnya.`;
+      stepInstruction = `JIKA ini respons pertama di step ini (user baru pilih bahasa):
+Sapa dengan semangat dan langsung tanya nama toko. Contoh: "Sip! Yuk mulai buka toko kamu sekarang 🛍️ Nama toko kamu apa?"
+
+JIKA user sudah kirim nama toko:
+Validasi nama (minimal 3 karakter).
+Jika valid: konfirmasi dengan semangat dan tanya kategori. Tawarkan: Fashion & Pakaian, Makanan & Minuman, Elektronik, Kecantikan & Perawatan, Kerajinan & Hobi, Lainnya.
+Jika tidak valid: minta ulang dengan ramah dan berikan contoh nama yang bagus.`;
       break;
     case "category":
       stepInstruction = `User memilih atau mengetik kategori toko.
@@ -67,14 +63,15 @@ Jika valid: konfirmasi dan katakan toko hampir siap!
 Jika tidak valid: minta ulang dengan contoh yang benar.
 Jika valid, ucapkan SELAMAT dengan sangat antusias! 🎉
 Gunakan nama toko dari context.
-Katakan: "Toko [NAMA TOKO] sudah aktif! Sekarang kamu bisa mulai tambah produk pertamamu 🚀"`;
+Katakan: "Toko [NAMA TOKO] sudah AKTIF! Dashboard kamu sudah siap — langsung buka sekarang! 🚀"
+JANGAN sebut "tambah produk" — langsung arahkan ke dashboard.`;
       break;
     case "complete":
       stepInstruction = `Ucapkan selamat dengan sangat meriah! 🎉🎊
 Sebutkan nama toko dari context.
-Katakan toko sudah AKTIF dan siap menerima pembeli.
-Motivasi seller: "Kamu luar biasa! Sekarang saatnya tambah produk pertamamu 🚀"
-Buat seller merasa EXCITED, bukan lega.`;
+Katakan toko sudah AKTIF dan dashboard sudah menunggu.
+Katakan: "Kamu luar biasa! Dashboard toko kamu sudah siap — ayo kita lihat! 🚀"
+JANGAN sebut "tambah produk" — buat seller excited untuk buka dashboard.`;
       break;
   }
 
@@ -112,22 +109,8 @@ function detectNextStep(
   switch (currentStep) {
     case "language": {
       const msg = userMessage.toLowerCase();
-      if (
-        msg.includes("indonesia") ||
-        msg.includes("indo") ||
-        msg.includes("bahasa") ||
-        msg.includes("english") ||
-        msg.includes("inggris") ||
-        msg.length > 0
-      ) {
+      if (msg.length > 0) {
         updated.language = msg.includes("english") || msg.includes("inggris") ? "english" : "indonesia";
-        nextStep = "welcome";
-      }
-      break;
-    }
-    case "welcome": {
-      // Any response moves to store_name collection
-      if (userMessage.trim().length > 0) {
         nextStep = "store_name";
       }
       break;
@@ -203,7 +186,6 @@ export async function POST(req: NextRequest) {
             description: updatedContext.description || null,
             phone: updatedContext.phone || null,
             onboardingCompleted: true,
-            onboardingComplete: true,
             updatedAt: new Date(),
           })
           .where(eq(sellers.id, seller.id));
@@ -346,20 +328,18 @@ function getFallbackMessage(step: string, context: Record<string, string>): stri
   switch (step) {
     case "language":
       return "Halo! Selamat datang di Nemu AI 👋 Mau pakai Bahasa Indonesia atau English? / Hello! Welcome to Nemu AI 👋 Would you like to continue in Bahasa Indonesia or English?";
-    case "welcome":
-      return "Seru banget! Yuk kita setup toko kamu sekarang — cuma butuh 2 menit ⚡ Kira-kira nama toko kamu apa?";
     case "store_name":
       return context.storeName
-        ? `Keren! Toko "${context.storeName}" siap meluncur 🚀 Sekarang, pilih kategori produk kamu: Fashion & Pakaian, Makanan & Minuman, Elektronik, Kecantikan & Perawatan, Kerajinan & Hobi, atau Lainnya?`
-        : "Hmm, nama tokonya minimal 3 karakter ya 😊 Contoh: 'Toko Baju Keren' atau 'Dapur Mama Rini'. Nama toko kamu apa?";
+        ? `Keren! Toko "${context.storeName}" siap meluncur 🚀 Sekarang pilih kategori: Fashion & Pakaian, Makanan & Minuman, Elektronik, Kecantikan, Kerajinan & Hobi, atau Lainnya?`
+        : "Seru! Yuk mulai 🛍️ Nama toko kamu apa?";
     case "category":
-      return `Pilihan bagus! 🎯 Sekarang, ceritakan sedikit tentang tokomu — jual apa, untuk siapa? Boleh skip kalau mau, bisa diisi nanti 😊`;
+      return "Pilihan bagus! 🎯 Ceritakan sedikit tentang tokomu — jual apa, untuk siapa? Boleh skip kalau mau 😊";
     case "description":
-      return "Oke, noted! 📝 Satu lagi — berapa nomor WhatsApp kamu? Format: +62xxx atau 08xxx. Ini buat pembeli bisa langsung hubungi kamu 📱";
+      return "Oke! 📝 Satu lagi — nomor WhatsApp kamu? Format: +62xxx atau 08xxx 📱";
     case "phone":
-      return `🎉 SELAMAT! Toko ${context.storeName || "kamu"} sudah AKTIF! Kamu luar biasa! Sekarang saatnya tambah produk pertamamu dan mulai jualan 🚀`;
+      return `🎉 SELAMAT! Toko ${context.storeName || "kamu"} sudah AKTIF! Dashboard kamu sudah siap — langsung buka sekarang! 🚀`;
     case "complete":
-      return `🎊 Toko ${context.storeName || "kamu"} sudah siap menerima pembeli! Yuk langsung buka dashboard dan tambah produk pertamamu! 🛍️`;
+      return `🎊 Toko ${context.storeName || "kamu"} sudah aktif! Dashboard kamu menunggu — ayo kita lihat! 🚀`;
     default:
       return "Oke! Lanjut ke langkah berikutnya 😊";
   }
