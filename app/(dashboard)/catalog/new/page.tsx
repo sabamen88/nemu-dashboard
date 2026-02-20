@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatRupiah, CATEGORIES } from "@/lib/utils";
 import Link from "next/link";
@@ -12,6 +12,9 @@ export default function NewProductPage() {
   const [images, setImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [error, setError] = useState("");
+  const [uploadAvailable, setUploadAvailable] = useState<boolean | null>(null);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -21,6 +24,13 @@ export default function NewProductPage() {
     weight: "",
     description: "",
   });
+
+  useEffect(() => {
+    fetch("/api/upload")
+      .then((r) => r.json())
+      .then((d: { available: boolean }) => setUploadAvailable(d.available))
+      .catch(() => setUploadAvailable(false));
+  }, []);
 
   function addImageUrl() {
     const url = newImageUrl.trim();
@@ -36,6 +46,49 @@ export default function NewProductPage() {
 
   function removeImage(i: number) {
     setImages(images.filter((_, j) => j !== i));
+  }
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (images.length >= 5) {
+      setError("Maksimal 5 foto");
+      return;
+    }
+
+    setError("");
+    const slotIndex = images.length;
+    setUploadingIndex(slotIndex);
+
+    try {
+      // Step 1: Get presigned upload URL
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      });
+      if (!res.ok) throw new Error("Gagal mendapatkan URL upload");
+      const { uploadUrl, publicUrl } = (await res.json()) as {
+        uploadUrl: string;
+        publicUrl: string;
+      };
+
+      // Step 2: PUT file to presigned URL
+      const putRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!putRes.ok) throw new Error("Gagal upload file");
+
+      setImages((prev) => [...prev, publicUrl]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal upload foto");
+    } finally {
+      setUploadingIndex(null);
+      // Reset input so same file can be selected again
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   async function generateDescription() {
@@ -106,12 +159,12 @@ export default function NewProductPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Image Upload via URL */}
+        {/* Image Upload */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-bold text-gray-900 mb-4">📷 Foto Produk</h2>
 
           {/* Current Images */}
-          {images.length > 0 && (
+          {(images.length > 0 || uploadingIndex !== null) && (
             <div className="flex gap-3 flex-wrap mb-4">
               {images.map((img, i) => (
                 <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-gray-200">
@@ -126,38 +179,86 @@ export default function NewProductPage() {
                   </button>
                 </div>
               ))}
+              {uploadingIndex !== null && (
+                <div className="w-24 h-24 rounded-xl border-2 border-dashed border-pink-300 flex flex-col items-center justify-center gap-1 bg-pink-50">
+                  <div className="w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs text-pink-500">Upload...</span>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Add Image via URL */}
           {images.length < 5 && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
-                Tambah Foto via URL
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="https://example.com/foto-produk.jpg"
-                  className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImageUrl())}
-                />
-                <button
-                  type="button"
-                  onClick={addImageUrl}
-                  disabled={!newImageUrl.trim()}
-                  className="px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition hover:opacity-90 disabled:opacity-50"
-                  style={{ backgroundColor: "#E91E63" }}
-                >
-                  + Tambah
-                </button>
+            <div className="space-y-3">
+              {/* File Upload Button (only shown when R2 is available) */}
+              {uploadAvailable && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                    Upload File Foto
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                    disabled={uploadingIndex !== null}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingIndex !== null}
+                    className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-600 hover:border-pink-400 hover:text-pink-600 hover:bg-pink-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploadingIndex !== null ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                        Mengupload...
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-base">📁</span>
+                        Pilih File dari Perangkat
+                      </>
+                    )}
+                  </button>
+                  <div className="my-3 flex items-center gap-3">
+                    <div className="flex-1 h-px bg-gray-200" />
+                    <span className="text-xs text-gray-400">atau</span>
+                    <div className="flex-1 h-px bg-gray-200" />
+                  </div>
+                </div>
+              )}
+
+              {/* Add Image via URL */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                  Tambah Foto via URL
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    placeholder="https://example.com/foto-produk.jpg"
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImageUrl())}
+                  />
+                  <button
+                    type="button"
+                    onClick={addImageUrl}
+                    disabled={!newImageUrl.trim()}
+                    className="px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition hover:opacity-90 disabled:opacity-50"
+                    style={{ backgroundColor: "#E91E63" }}
+                  >
+                    + Tambah
+                  </button>
+                </div>
               </div>
             </div>
           )}
           <p className="text-xs text-gray-400 mt-3">
-            Maks 5 foto · Tempel URL gambar dari internet
+            Maks 5 foto · {uploadAvailable ? "Upload file atau tempel URL gambar" : "Tempel URL gambar dari internet"}
           </p>
         </div>
 
@@ -254,7 +355,8 @@ export default function NewProductPage() {
               >
                 {generatingDesc ? (
                   <>
-                    <span>⏳</span> Generating...
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Generating...
                   </>
                 ) : (
                   <>

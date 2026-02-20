@@ -22,6 +22,10 @@ export default function AgentToggle({ seller }: { seller: Seller }) {
     setLoading(false);
   }
 
+  function openChatWidget() {
+    window.dispatchEvent(new CustomEvent("open-chat-widget"));
+  }
+
   if (seller.agentStatus === "inactive") {
     return (
       <div className="space-y-4">
@@ -67,7 +71,7 @@ export default function AgentToggle({ seller }: { seller: Seller }) {
           </div>
           <div>
             <p className="font-semibold text-green-700 text-sm">🟢 Agen AI Aktif</p>
-            <p className="text-xs text-green-600">Menjawab pesan pembeli otomatis via WhatsApp</p>
+            <p className="text-xs text-green-600">Asisten AI aktif di dashboard</p>
           </div>
         </div>
         <div className="space-y-2 text-sm text-gray-600">
@@ -85,9 +89,16 @@ export default function AgentToggle({ seller }: { seller: Seller }) {
           </div>
         </div>
         <button
+          onClick={openChatWidget}
+          className="w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-white transition hover:opacity-90 shadow-sm"
+          style={{ backgroundColor: "#E91E63" }}
+        >
+          💬 Chat dengan AI Sekarang
+        </button>
+        <button
           onClick={deactivate}
           disabled={loading}
-          className="text-xs text-gray-400 hover:text-red-500 transition underline"
+          className="text-xs text-gray-400 hover:text-red-500 transition underline block mx-auto"
         >
           {loading ? "Menonaktifkan..." : "Nonaktifkan agen"}
         </button>

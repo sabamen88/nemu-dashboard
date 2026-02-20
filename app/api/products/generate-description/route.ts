@@ -58,6 +58,51 @@ function getTemplates(category: string): string[] {
   return CATEGORY_TEMPLATES[category] ?? CATEGORY_TEMPLATES["default"];
 }
 
+function buildFallbackDescription(name: string, category: string): string {
+  const cat = category ?? "default";
+  const templates = getTemplates(cat);
+  const lines = [
+    `${name} — produk ${cat.toLowerCase()} pilihan terbaik untuk kamu!`,
+    "",
+    ...templates.slice(0, 4),
+    "",
+    `Produk original, bukan KW. Kami menjamin kualitas ${name} yang kamu beli.`,
+    "Punya pertanyaan? Chat kami — agen AI kami siap membantu 24/7!",
+  ];
+  return lines.join("\n");
+}
+
+async function generateWithMinimax(name: string, category: string): Promise<string> {
+  const apiKey = process.env.MINIMAX_API_KEY;
+  if (!apiKey) throw new Error("MINIMAX_API_KEY not configured");
+
+  const prompt = `Buat deskripsi produk yang menarik dalam Bahasa Indonesia untuk produk "${name}" dalam kategori "${category}". Tulis 3-4 kalimat, tonjolkan manfaat utama produk, dan akhiri dengan ajakan untuk membeli (call to action). Gunakan gaya bahasa natural seperti listing di Tokopedia atau Shopee yang profesional. Langsung tulis deskripsinya saja tanpa heading, label, atau penjelasan tambahan.`;
+
+  const response = await fetch("https://api.minimax.io/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "MiniMax-Text-01",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 350,
+      temperature: 0.8,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`MiniMax API error: ${err}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content as string | undefined;
+  if (!content?.trim()) throw new Error("Empty response from MiniMax");
+  return content.trim();
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, category } = body as { name?: string; category?: string };
@@ -67,19 +112,13 @@ export async function POST(req: NextRequest) {
   }
 
   const cat = category ?? "default";
-  const templates = getTemplates(cat);
 
-  // Build a realistic description from the templates
-  const lines = [
-    `${name} — produk ${cat.toLowerCase()} pilihan terbaik untuk kamu!`,
-    "",
-    ...templates.slice(0, 4),
-    "",
-    `Produk original, bukan KW. Kami menjamin kualitas ${name} yang kamu beli.`,
-    "Punya pertanyaan? Chat kami via WhatsApp — agen AI kami siap membantu 24/7!",
-  ];
-
-  const description = lines.join("\n");
-
-  return NextResponse.json({ description });
+  try {
+    const description = await generateWithMinimax(name, cat);
+    return NextResponse.json({ description });
+  } catch (err) {
+    console.warn("MiniMax description generation failed, using fallback:", err);
+    const description = buildFallbackDescription(name, cat);
+    return NextResponse.json({ description });
+  }
 }

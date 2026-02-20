@@ -23,10 +23,10 @@ Panduan onboarding:
 Selalu ramah, singkat, dan praktis. Gunakan emoji sesekali 🎉. Jangan terlalu panjang.`;
 
 const QUICK_REPLIES = [
-  "Mulai setup toko 🏪",
-  "Tanya tentang AI Agent 🤖",
-  "Tentang Nemu Wallet 💰",
-  "Cara tambah produk? 📦",
+  "Lihat pesanan hari ini 🛒",
+  "Tips meningkatkan penjualan 💡",
+  "Cara upload produk? 📦",
+  "Analisis toko saya 📊",
 ];
 
 const STORAGE_KEY = "nemu_chat_history";
@@ -39,6 +39,17 @@ export default function ChatWidget() {
   const [unread, setUnread] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Listen for custom open event (dispatched by agent toggle, etc.)
+  useEffect(() => {
+    function handleOpenEvent() {
+      setOpen(true);
+      setUnread(0);
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+    window.addEventListener("open-chat-widget", handleOpenEvent);
+    return () => window.removeEventListener("open-chat-widget", handleOpenEvent);
+  }, []);
 
   // Load from localStorage
   useEffect(() => {

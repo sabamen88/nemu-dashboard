@@ -221,20 +221,48 @@ export default function MessagesView({ conversations, agentActive }: Props) {
         ) : (
           /* Empty State */
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-            <div className="text-6xl mb-4">💬</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Pesan WhatsApp Kamu</h2>
-            <p className="text-gray-500 max-w-sm leading-relaxed">
-              {conversations.length === 0
-                ? "Hubungkan WhatsApp untuk melihat pesan pembeli secara real-time. Agen AI akan membalas otomatis!"
-                : "Pilih percakapan di sebelah kiri untuk membaca dan membalas pesan."}
-            </p>
-            {conversations.length === 0 && (
-              <button
-                className="mt-6 px-6 py-3 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition shadow-sm"
-                style={{ backgroundColor: '#E91E63' }}
-              >
-                📱 Hubungkan WhatsApp
-              </button>
+            {conversations.length === 0 ? (
+              <>
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-5"
+                  style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd9)" }}
+                >
+                  💬
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Belum Ada Pesan Masuk</h2>
+                <p className="text-gray-500 max-w-sm leading-relaxed mb-2">
+                  Pesan dari pembeli akan muncul di sini secara otomatis ketika Agen AI kamu aktif.
+                </p>
+                <p className="text-gray-400 text-sm max-w-sm leading-relaxed">
+                  Aktifkan Agen AI dari dashboard, lalu bagikan link toko kamu. AI akan menjawab pertanyaan pembeli 24/7! 🤖
+                </p>
+                <div className="mt-6 flex flex-col gap-3 items-center w-full max-w-xs">
+                  {[
+                    { icon: "1️⃣", title: "Aktifkan Agen AI", desc: "Buka Dashboard → klik \"Aktifkan Agen AI\"" },
+                    { icon: "2️⃣", title: "Bagikan Link Toko", desc: "Kirim link toko ke calon pembeli via sosmed" },
+                    { icon: "3️⃣", title: "AI Menjawab Otomatis", desc: "Semua percakapan tersimpan dan terlihat di sini" },
+                  ].map((step) => (
+                    <div
+                      key={step.icon}
+                      className="flex items-start gap-3 text-left bg-white rounded-xl border border-gray-100 p-4 shadow-sm w-full"
+                    >
+                      <span className="text-xl flex-shrink-0">{step.icon}</span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700">{step.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{step.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-6xl mb-4">💬</div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Pilih Percakapan</h2>
+                <p className="text-gray-500 max-w-sm leading-relaxed">
+                  Pilih percakapan di sebelah kiri untuk membaca dan membalas pesan.
+                </p>
+              </>
             )}
           </div>
         )}
