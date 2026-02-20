@@ -31,11 +31,14 @@ const CATEGORIES = [
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-2">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
-        style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
-      >
-        <span>✨</span>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#7B5CF0' }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2 L13.5 9.5 L21 11 L13.5 12.5 L12 20 L10.5 12.5 L3 11 L10.5 9.5 Z"/>
+          <circle cx="7" cy="4" r="1" fill="white" opacity="0.7"/>
+          <circle cx="17" cy="4" r="1" fill="white" opacity="0.7"/>
+          <circle cx="7" cy="18" r="1" fill="white" opacity="0.7"/>
+          <circle cx="17" cy="18" r="1" fill="white" opacity="0.7"/>
+        </svg>
       </div>
       <div className="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-sm">
         <span className="flex gap-1.5 items-center h-4">
@@ -234,7 +237,7 @@ export default function OnboardingChat() {
         <div className="h-1 bg-gray-100">
           <div
             className="h-full transition-all duration-700 ease-out"
-            style={{ width: `${progressPercent}%`, backgroundColor: "#4f39f6" }}
+            style={{ width: `${progressPercent}%`, backgroundColor: "#7B5CF0" }}
           />
         </div>
 
@@ -246,7 +249,7 @@ export default function OnboardingChat() {
                 className={`w-2 h-2 rounded-full transition-all ${
                   i <= stepIndex ? "scale-125" : "bg-gray-200"
                 }`}
-                style={i <= stepIndex ? { backgroundColor: "#4f39f6" } : {}}
+                style={i <= stepIndex ? { backgroundColor: "#7B5CF0" } : {}}
               />
               <span
                 className={`text-[9px] font-medium transition-all hidden sm:block ${
@@ -263,7 +266,7 @@ export default function OnboardingChat() {
               className={`w-2 h-2 rounded-full transition-all ${
                 step === "complete" ? "scale-125" : "bg-gray-200"
               }`}
-              style={step === "complete" ? { backgroundColor: "#4f39f6" } : {}}
+              style={step === "complete" ? { backgroundColor: "#7B5CF0" } : {}}
             />
             <span className="text-[9px] font-medium text-gray-400 hidden sm:block">
               🎉
@@ -281,11 +284,14 @@ export default function OnboardingChat() {
               className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "ai" && (
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
-                >
-                  <span>✨</span>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#7B5CF0' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2 L13.5 9.5 L21 11 L13.5 12.5 L12 20 L10.5 12.5 L3 11 L10.5 9.5 Z"/>
+                    <circle cx="7" cy="4" r="1" fill="white" opacity="0.7"/>
+                    <circle cx="17" cy="4" r="1" fill="white" opacity="0.7"/>
+                    <circle cx="7" cy="18" r="1" fill="white" opacity="0.7"/>
+                    <circle cx="17" cy="18" r="1" fill="white" opacity="0.7"/>
+                  </svg>
                 </div>
               )}
               <div className={`max-w-[82%] ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col`}>
@@ -295,7 +301,7 @@ export default function OnboardingChat() {
                       ? "text-white rounded-2xl rounded-br-sm shadow-sm"
                       : "bg-white text-gray-800 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100"
                   }`}
-                  style={msg.role === "user" ? { backgroundColor: "#4f39f6" } : {}}
+                  style={msg.role === "user" ? { backgroundColor: "#7B5CF0" } : {}}
                 >
                   {msg.content || (
                     <span className="flex gap-1.5 items-center h-4">
@@ -321,17 +327,17 @@ export default function OnboardingChat() {
                   onClick={() => handleSend(cat)}
                   className="text-sm px-3 py-1.5 rounded-full border-2 font-medium transition-all hover:text-white hover:shadow-md active:scale-95"
                   style={{
-                    borderColor: "#4f39f6",
-                    color: "#4f39f6",
+                    borderColor: "#7B5CF0",
+                    color: "#7B5CF0",
                     transition: "all 0.15s ease",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = "#4f39f6";
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "#7B5CF0";
                     (e.currentTarget as HTMLElement).style.color = "white";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.backgroundColor = "";
-                    (e.currentTarget as HTMLElement).style.color = "#4f39f6";
+                    (e.currentTarget as HTMLElement).style.color = "#7B5CF0";
                   }}
                 >
                   {cat}
@@ -357,7 +363,7 @@ export default function OnboardingChat() {
             <div className="flex justify-center my-4">
               <div
                 className="px-6 py-4 rounded-2xl text-center text-white shadow-lg"
-                style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
+                style={{ background: "linear-gradient(135deg, #7B5CF0, #625fff)" }}
               >
                 <div className="text-3xl mb-2">🎉🎊🚀</div>
                 <p className="font-bold text-sm">Toko kamu sudah AKTIF!</p>
@@ -396,13 +402,13 @@ export default function OnboardingChat() {
               disabled={loading || done}
               autoComplete="off"
               className="flex-1 px-4 py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 disabled:opacity-60"
-              style={{ "--tw-ring-color": "#4f39f6" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7B5CF0" } as React.CSSProperties}
             />
             <button
               type="submit"
               disabled={!input.trim() || loading || done}
               className="w-12 h-12 rounded-2xl flex items-center justify-center text-white transition-all hover:opacity-90 disabled:opacity-40 active:scale-95 flex-shrink-0 shadow-sm"
-              style={{ backgroundColor: "#4f39f6" }}
+              style={{ backgroundColor: "#7B5CF0" }}
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
