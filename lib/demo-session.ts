@@ -23,6 +23,7 @@ export async function getDemoSeller() {
       description: "Toko demo untuk Nemu AI — ganti dengan toko kamu!",
       inviteCode: generateInviteCode(),
       onboardingComplete: true,
+      onboardingCompleted: true,
       isFoundingSeller: true,
       agentStatus: "inactive",
     }).returning();

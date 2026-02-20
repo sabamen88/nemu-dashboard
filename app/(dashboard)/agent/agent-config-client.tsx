@@ -33,6 +33,8 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
   const [customPrompt, setCustomPrompt] = useState(seller.aiCustomPrompt ?? "");
   const [promptSaved, setPromptSaved] = useState(false);
   const [error, setError] = useState("");
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "success" | "error">("idle");
 
   const isActive = seller.agentStatus === "active";
   const chatflowId = (seller as Record<string, unknown>).agentChatflowId as string | undefined;
@@ -82,6 +84,26 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
       setError("Gagal menyimpan kepribadian AI");
     } finally {
       setSavingPrompt(false);
+    }
+  }
+
+  async function handleSyncCatalog() {
+    setSyncLoading(true);
+    setSyncStatus("idle");
+    setError("");
+    try {
+      await fetch("/api/agent/provision", { method: "DELETE" });
+      const res = await fetch("/api/agent/provision", { method: "POST" });
+      if (!res.ok) throw new Error("Gagal sinkronisasi katalog");
+      setSyncStatus("success");
+      setTimeout(() => setSyncStatus("idle"), 4000);
+      router.refresh();
+    } catch (e: unknown) {
+      setSyncStatus("error");
+      setError(e instanceof Error ? e.message : "Gagal menyinkronkan katalog");
+      setTimeout(() => setSyncStatus("idle"), 4000);
+    } finally {
+      setSyncLoading(false);
     }
   }
 
@@ -157,13 +179,41 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
               </div>
             </div>
 
-            <button
-              onClick={handleDeactivate}
-              disabled={loading}
-              className="text-xs text-gray-400 hover:text-red-500 transition underline"
-            >
-              {loading ? "Menonaktifkan..." : "Nonaktifkan agen"}
-            </button>
+            <div className="flex items-center gap-4 flex-wrap">
+              <button
+                onClick={handleDeactivate}
+                disabled={loading || syncLoading}
+                className="text-xs text-gray-400 hover:text-red-500 transition underline"
+              >
+                {loading ? "Menonaktifkan..." : "Nonaktifkan agen"}
+              </button>
+              <button
+                onClick={handleSyncCatalog}
+                disabled={loading || syncLoading}
+                className="text-xs px-3 py-1.5 rounded-lg border font-medium transition hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                style={{
+                  borderColor: syncStatus === "success" ? "#22c55e" : "#E91E63",
+                  color: syncStatus === "success" ? "#22c55e" : "#E91E63",
+                  backgroundColor:
+                    syncStatus === "success"
+                      ? "#f0fdf4"
+                      : syncStatus === "error"
+                      ? "#fff1f2"
+                      : "white",
+                }}
+              >
+                {syncLoading ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Menyinkronkan...
+                  </>
+                ) : syncStatus === "success" ? (
+                  "✓ Katalog tersinkron!"
+                ) : (
+                  "🔄 Sync Katalog"
+                )}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

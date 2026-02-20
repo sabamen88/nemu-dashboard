@@ -23,6 +23,7 @@ export const sellers = pgTable("sellers", {
   // Meta
   isFoundingSeller: boolean("is_founding_seller").notNull().default(false),
   onboardingComplete: boolean("onboarding_complete").notNull().default(false),
+  onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
