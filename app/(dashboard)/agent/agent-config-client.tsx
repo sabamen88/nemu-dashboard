@@ -37,6 +37,8 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
   const [syncStatus, setSyncStatus] = useState<"idle" | "success" | "error">("idle");
   const [postingToOpenclaw, setPostingToOpenclaw] = useState(false);
   const [openclawPostDone, setOpenclawPostDone] = useState(false);
+  const [connectingOpenclaw, setConnectingOpenclaw] = useState(false);
+  const [openclawConnectError, setOpenclawConnectError] = useState("");
 
   const isActive = seller.agentStatus === "active";
   const chatflowId = (seller as Record<string, unknown>).agentChatflowId as string | undefined;
@@ -108,6 +110,21 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
       // non-fatal
     } finally {
       setPostingToOpenclaw(false);
+    }
+  }
+
+  async function handleOpenclawConnect() {
+    setConnectingOpenclaw(true);
+    setOpenclawConnectError("");
+    try {
+      const res = await fetch("/api/openclaw/register", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Gagal terhubung ke open-claw.id");
+      router.refresh();
+    } catch (e: unknown) {
+      setOpenclawConnectError(e instanceof Error ? e.message : "Terjadi kesalahan");
+    } finally {
+      setConnectingOpenclaw(false);
     }
   }
 
@@ -301,8 +318,31 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
               {openclawPostDone && <p className="text-xs text-green-600 text-center">✅ Post berhasil dikirim!</p>}
             </div>
           ) : (
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">Aktifkan agen AI untuk terhubung ke open-claw.id</p>
+            <div className="space-y-3">
+              <div className="p-4 bg-gray-50 rounded-xl text-center space-y-3">
+                <p className="text-sm text-gray-600 font-medium">Hubungkan agen kamu ke open-claw.id</p>
+                <p className="text-xs text-gray-400">
+                  Agent sosial network untuk AI — katalog tokomu akan terindeks oleh buyer agents di seluruh Indonesia.
+                </p>
+                <button
+                  onClick={handleOpenclawConnect}
+                  disabled={connectingOpenclaw}
+                  className="mx-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                  style={{ backgroundColor: "#7B5CF0" }}
+                >
+                  {connectingOpenclaw ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Menghubungkan...
+                    </>
+                  ) : (
+                    "🌐 Hubungkan ke open-claw.id"
+                  )}
+                </button>
+                {openclawConnectError && (
+                  <p className="text-xs text-red-500">{openclawConnectError}</p>
+                )}
+              </div>
             </div>
           )}
         </div>
