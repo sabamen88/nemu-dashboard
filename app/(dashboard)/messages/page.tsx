@@ -19,6 +19,7 @@ const DEMO_BUYERS = [
 
 export default function MessagesPage() {
   const [selectedBuyer, setSelectedBuyer] = useState(DEMO_BUYERS[0]);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -115,9 +116,9 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex h-full bg-white">
+    <div className="flex h-full bg-white overflow-hidden">
       {/* Left: Conversation List */}
-      <div className="w-80 border-r border-gray-100 flex flex-col flex-shrink-0">
+      <div className={`${mobileShowChat ? 'hidden' : 'flex'} sm:flex flex-col w-full sm:w-80 border-r border-gray-100 flex-shrink-0`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center justify-between mb-3">
@@ -132,21 +133,23 @@ export default function MessagesPage() {
               onClick={() => setMode("buyer")}
               className={`flex-1 text-xs py-1.5 rounded-lg font-medium transition-colors ${
                 mode === "buyer"
-                  ? "bg-indigo-500 text-white"
+                  ? "text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
+              style={mode === "buyer" ? { backgroundColor: '#7B5CF0' } : {}}
             >
-              🛍️ Simulasi Pembeli
+              🛍️ Pembeli
             </button>
             <button
               onClick={() => setMode("owner")}
               className={`flex-1 text-xs py-1.5 rounded-lg font-medium transition-colors ${
                 mode === "owner"
-                  ? "bg-indigo-500 text-white"
+                  ? "text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
+              style={mode === "owner" ? { backgroundColor: '#7B5CF0' } : {}}
             >
-              👤 Sebagai Penjual
+              👤 Penjual
             </button>
           </div>
         </div>
@@ -156,9 +159,9 @@ export default function MessagesPage() {
           {DEMO_BUYERS.map((buyer) => (
             <button
               key={buyer.id}
-              onClick={() => setSelectedBuyer(buyer)}
+              onClick={() => { setSelectedBuyer(buyer); setMobileShowChat(true); }}
               className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${
-                selectedBuyer.id === buyer.id ? "bg-indigo-50 border-l-2 border-l-pink-500" : ""
+                selectedBuyer.id === buyer.id ? "bg-indigo-50 border-l-2 border-l-indigo-500" : ""
               }`}
             >
               <div className="flex items-start gap-3">
@@ -169,7 +172,7 @@ export default function MessagesPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-900 truncate">{buyer.name}</span>
                     {buyer.unread > 0 && (
-                      <span className="bg-indigo-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#7B5CF0' }}>
                         {buyer.unread}
                       </span>
                     )}
@@ -203,9 +206,15 @@ export default function MessagesPage() {
       </div>
 
       {/* Right: Chat View */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`${!mobileShowChat ? 'hidden' : 'flex'} sm:flex flex-1 flex-col min-w-0`}>
         {/* Chat Header */}
         <div className="p-4 border-b border-gray-100 flex items-center gap-3">
+          <button
+            onClick={() => setMobileShowChat(false)}
+            className="sm:hidden p-2 -ml-1 rounded-lg hover:bg-gray-100 text-gray-600 transition mr-1"
+          >
+            ←
+          </button>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
             {selectedBuyer.name.slice(-4, -2)}
           </div>
@@ -213,11 +222,11 @@ export default function MessagesPage() {
             <p className="font-medium text-gray-900 text-sm">{selectedBuyer.name}</p>
             <p className="text-xs text-gray-500">via WhatsApp Business</p>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
             {agentEnabled && (
-              <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full whitespace-nowrap">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                Agen AI aktif
+                Agen aktif
               </span>
             )}
           </div>
@@ -225,15 +234,15 @@ export default function MessagesPage() {
 
         {/* Mode Banner */}
         {mode === "buyer" && (
-          <div className="mx-4 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700 flex items-center gap-2">
-            <span>🎭</span>
-            <span><strong>Mode Simulasi Pembeli</strong> — Ketik seperti pembeli sungguhan. Agen AI kamu akan merespons sesuai katalog toko.</span>
+          <div className="mx-3 mt-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 flex items-center gap-1.5">
+            <span className="flex-shrink-0">🎭</span>
+            <span className="truncate font-medium">Mode Simulasi Pembeli — ketik seperti pembeli sungguhan</span>
           </div>
         )}
         {mode === "owner" && (
-          <div className="mx-4 mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-700 flex items-center gap-2">
-            <span>👤</span>
-            <span><strong>Mode Pemilik Toko</strong> — Tanya laporan, stok, atau minta analisis toko kamu.</span>
+          <div className="mx-3 mt-2 px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg text-xs text-indigo-700 flex items-center gap-1.5">
+            <span className="flex-shrink-0">👤</span>
+            <span className="truncate font-medium">Mode Pemilik Toko — tanya laporan atau stok</span>
           </div>
         )}
 
@@ -253,9 +262,10 @@ export default function MessagesPage() {
                 <div
                   className={`px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
                     msg.role === "user"
-                      ? "bg-indigo-500 text-white rounded-tr-sm"
+                      ? "text-white rounded-tr-sm"
                       : "bg-gray-100 text-gray-800 rounded-tl-sm"
                   }`}
+                  style={msg.role === "user" ? { backgroundColor: '#7B5CF0' } : {}}
                 >
                   {msg.content || (
                     <span className="flex gap-1 items-center">
@@ -283,8 +293,8 @@ export default function MessagesPage() {
               onChange={(e) => setInput(e.target.value)}
               placeholder={
                 mode === "buyer"
-                  ? "Ketik pesan sebagai pembeli... (coba: 'ada kaos putih M?')"
-                  : "Tanya agen kamu... (coba: 'produk apa yang paling laku?')"
+                  ? "Ketik sebagai pembeli..."
+                  : "Tanya agen kamu..."
               }
               className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 bg-gray-50"
               disabled={loading}
@@ -292,14 +302,12 @@ export default function MessagesPage() {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-200 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-40"
+              style={{ backgroundColor: '#7B5CF0' }}
             >
               {loading ? "..." : "Kirim"}
             </button>
           </form>
-          <p className="text-xs text-gray-400 mt-2 text-center">
-            Ditenagai oleh MiniMax M2.5 · Persona: Agen Toko {mode === "buyer" ? "menjawab pembeli" : "melapor ke pemilik"}
-          </p>
         </div>
       </div>
     </div>
