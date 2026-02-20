@@ -158,10 +158,11 @@ export default function ChatWidget() {
         } else {
           // Streamed response (normal Q&A)
           const reader = res.body?.getReader();
+          if (!reader) throw new Error("Empty stream body");
           const decoder = new TextDecoder();
           let full = "";
 
-          while (reader) {
+          while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = decoder.decode(value);
@@ -178,6 +179,17 @@ export default function ChatWidget() {
                 } catch {}
               }
             }
+          }
+
+          // Guard: if stream produced no content, show a fallback
+          if (!full) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: "Maaf, ada masalah. Coba kirim pesan lagi ya 🙏" }
+                  : m
+              )
+            );
           }
         }
       } catch {

@@ -8,15 +8,20 @@ import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 
 export async function GET() {
-  const seller = await getDemoSeller();
+  try {
+    const seller = await getDemoSeller();
 
-  const items = await db.query.messages.findMany({
-    where: eq(messages.sellerId, seller.id),
-    orderBy: [desc(messages.createdAt)],
-    limit: 200,
-  });
+    const items = await db.query.messages.findMany({
+      where: eq(messages.sellerId, seller.id),
+      orderBy: [desc(messages.createdAt)],
+      limit: 200,
+    });
 
-  return NextResponse.json(items);
+    return NextResponse.json(items);
+  } catch (err) {
+    console.error("[messages GET]", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }
 
 const messageSchema = z.object({
@@ -28,18 +33,23 @@ const messageSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const seller = await getDemoSeller();
-  const body = await req.json();
-  const parsed = messageSchema.safeParse(body);
+  try {
+    const seller = await getDemoSeller();
+    const body = await req.json();
+    const parsed = messageSchema.safeParse(body);
 
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
+
+    const [message] = await db.insert(messages).values({
+      sellerId: seller.id,
+      ...parsed.data,
+    }).returning();
+
+    return NextResponse.json(message, { status: 201 });
+  } catch (err) {
+    console.error("[messages POST]", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
-
-  const [message] = await db.insert(messages).values({
-    sellerId: seller.id,
-    ...parsed.data,
-  }).returning();
-
-  return NextResponse.json(message, { status: 201 });
 }

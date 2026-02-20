@@ -57,7 +57,7 @@ export default function CatalogGrid({ products, filter }: Props) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {filtered.map((product) => {
-        const imgs = product.images as string[];
+        const imgs = (product.images ?? []) as string[];
         const isOutOfStock = product.stock === 0;
 
         return (

@@ -5,12 +5,16 @@ import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
 import { sellers, products } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+
 const FLOWISE_URL = process.env.FLOWISE_URL;
 const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY;
 // Pre-created OpenAI-compatible credential in Flowise pointing to MiniMax M2.5
 // Created via POST /api/v1/credentials with credentialName: "openAIApi"
 const FLOWISE_CREDENTIAL_ID =
   process.env.FLOWISE_CREDENTIAL_ID ?? "17197a1e-0072-4773-943d-0633792fb7a2";
+
+// TODO(hardcoded): Replace nemu-dashboard.onrender.com with NEXT_PUBLIC_APP_URL env var for real deployments
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://nemu-dashboard.onrender.com";
 
 /** Build a stock-Flowise-compatible chatflow payload.
  *  Uses only built-in nodes: ChatOpenAI (MiniMax via credential) + BufferMemory + ConversationChain.
@@ -157,17 +161,18 @@ ATURAN:
 }
 
 // Register open-claw.id agent for this seller
-async function registerOpenclawAgent(seller: Awaited<ReturnType<typeof getDemoSeller>>): Promise<{apiKey: string, claimUrl: string, agentId: string, agentName: string} | null> {
+async function registerOpenclawAgent(seller: Awaited<ReturnType<typeof getDemoSeller>>): Promise<{ apiKey: string; claimUrl: string; agentId: string; agentName: string } | null> {
   // Skip if already registered
-  if ((seller as Record<string, unknown>).openclawApiKey) return null;
+  if (seller.openclawApiKey) return null;
 
-  const agentName = `NemuStore-${(seller as Record<string, unknown>).tokoId || seller.id.slice(0, 8)}`;
-  const description = `AI agent for ${seller.storeName} — Indonesian marketplace seller on Nemu AI (nemu-ai.com/toko/${seller.storeSlug}). Toko ID: ${(seller as Record<string, unknown>).tokoId || ''}`;
+  const tokoId = seller.tokoId ?? seller.storeSlug;
+  const agentName = `NemuStore-${tokoId}`;
+  const description = `AI agent for ${seller.storeName} — Indonesian marketplace seller on Nemu AI (nemu-ai.com/toko/${seller.storeSlug}). Toko ID: ${tokoId}`;
 
   try {
-    const res = await fetch('https://api.open-claw.id/api/v1/agents/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("https://api.open-claw.id/api/v1/agents/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: agentName, description }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -182,157 +187,170 @@ async function registerOpenclawAgent(seller: Awaited<ReturnType<typeof getDemoSe
   } catch { return null; }
 }
 
+function buildOpenclawPostContent(seller: Awaited<ReturnType<typeof getDemoSeller>>) {
+  const tokoId = seller.tokoId ?? seller.storeSlug;
+  // TODO(hardcoded): Replace nemu-dashboard.onrender.com with NEXT_PUBLIC_APP_URL env var for real deployments
+  const catalogUrl = `${APP_URL}/api/store/${tokoId}`;
+  return {
+    title: `🛍️ ${seller.storeName} buka toko di Nemu AI!`,
+    content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kami menjual: ${seller.category}\n🔑 Toko ID: **${tokoId}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog via API: ${catalogUrl}\n\nBuyer agents: gunakan Toko ID **${tokoId}** untuk cek katalog dan beli langsung! 🚀`,
+    submolt: "nemu",
+  };
+}
+
 export async function POST(_req: NextRequest) {
-  const seller = await getDemoSeller();
+  try {
+    const seller = await getDemoSeller();
 
-  // ── Already provisioned? return existing ────────────────────────────────
-  if (seller.agentStatus === "active" && seller.agentChatflowId) {
-    return NextResponse.json({
-      status: "provisioned",
-      chatflowId: seller.agentChatflowId,
-      source: "existing",
-    });
-  }
+    // ── Already provisioned? return existing ────────────────────────────────
+    if (seller.agentStatus === "active" && seller.agentChatflowId) {
+      return NextResponse.json({
+        status: "provisioned",
+        chatflowId: seller.agentChatflowId,
+        source: "existing",
+      });
+    }
 
-  // ── Fetch product catalog for system prompt ──────────────────────────────
-  const catalog = await db
-    .select({
-      name: products.name,
-      price: products.price,
-      stock: products.stock,
-      description: products.description,
-    })
-    .from(products)
-    .where(eq(products.sellerId, seller.id))
-    .limit(20);
+    // ── Fetch product catalog for system prompt ──────────────────────────────
+    const catalog = await db
+      .select({
+        name: products.name,
+        price: products.price,
+        stock: products.stock,
+        description: products.description,
+      })
+      .from(products)
+      .where(eq(products.sellerId, seller.id))
+      .limit(20);
 
-  const catalogText =
-    catalog.length > 0
-      ? catalog
-          .map(
-            (p) =>
-              `- ${p.name}: Rp${Number(p.price).toLocaleString("id")} | Stok: ${p.stock}${
-                p.description ? ` | ${p.description.slice(0, 80)}` : ""
-              }`
-          )
-          .join("\n")
-      : "Belum ada produk di katalog.";
+    const catalogText =
+      catalog.length > 0
+        ? catalog
+            .map(
+              (p) =>
+                `- ${p.name}: Rp${Number(p.price).toLocaleString("id")} | Stok: ${p.stock}${
+                  p.description ? ` | ${p.description.slice(0, 80)}` : ""
+                }`
+            )
+            .join("\n")
+        : "Belum ada produk di katalog.";
 
-  // ── Try Flowise API ──────────────────────────────────────────────────────
-  if (FLOWISE_URL && FLOWISE_API_KEY) {
-    try {
-      const payload = buildChatflowPayload(seller.storeName, seller.id, catalogText);
+    // ── Try Flowise API ──────────────────────────────────────────────────────
+    if (FLOWISE_URL && FLOWISE_API_KEY) {
+      try {
+        const payload = buildChatflowPayload(seller.storeName, seller.id, catalogText);
 
-      const response = await fetch(`${FLOWISE_URL}/api/v1/chatflows`, {
+        const response = await fetch(`${FLOWISE_URL}/api/v1/chatflows`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${FLOWISE_API_KEY}`,
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(30_000),
+        });
+
+        if (response.ok) {
+          const chatflow = await response.json();
+          const chatflowId = chatflow.id as string;
+
+          await db
+            .update(sellers)
+            .set({ agentStatus: "active", agentChatflowId: chatflowId, updatedAt: new Date() })
+            .where(eq(sellers.id, seller.id));
+
+          // Register open-claw.id agent and auto-post store intro
+          const openclawData = await registerOpenclawAgent(seller);
+          if (openclawData) {
+            await db.update(sellers).set({
+              openclawApiKey: openclawData.apiKey,
+              openclawClaimUrl: openclawData.claimUrl,
+              openclawAgentId: openclawData.agentId,
+              openclawAgentName: openclawData.agentName,
+            }).where(eq(sellers.id, seller.id));
+
+            const postBody = buildOpenclawPostContent(seller);
+            fetch("https://api.open-claw.id/api/v1/posts", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${openclawData.apiKey}`,
+              },
+              body: JSON.stringify(postBody),
+              signal: AbortSignal.timeout(10_000),
+            }).catch(() => {}); // non-fatal
+          }
+
+          return NextResponse.json({ status: "provisioned", chatflowId, source: "flowise" });
+        } else {
+          const err = await response.text();
+          console.error("[provision] Flowise error:", response.status, err);
+        }
+      } catch (err) {
+        console.error("[provision] Flowise exception:", err);
+      }
+    }
+
+    // ── Demo fallback ────────────────────────────────────────────────────────
+    await db
+      .update(sellers)
+      .set({ agentStatus: "active", updatedAt: new Date() })
+      .where(eq(sellers.id, seller.id));
+
+    // Register open-claw.id agent and auto-post store intro (demo path)
+    const openclawData = await registerOpenclawAgent(seller);
+    if (openclawData) {
+      await db.update(sellers).set({
+        openclawApiKey: openclawData.apiKey,
+        openclawClaimUrl: openclawData.claimUrl,
+        openclawAgentId: openclawData.agentId,
+        openclawAgentName: openclawData.agentName,
+      }).where(eq(sellers.id, seller.id));
+
+      const postBody = buildOpenclawPostContent(seller);
+      fetch("https://api.open-claw.id/api/v1/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${FLOWISE_API_KEY}`,
+          Authorization: `Bearer ${openclawData.apiKey}`,
         },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(30_000),
-      });
-
-      if (response.ok) {
-        const chatflow = await response.json();
-        const chatflowId = chatflow.id as string;
-
-        await db
-          .update(sellers)
-          .set({ agentStatus: "active", agentChatflowId: chatflowId, updatedAt: new Date() })
-          .where(eq(sellers.id, seller.id));
-
-        // Register open-claw.id agent and auto-post store intro
-        const openclawData = await registerOpenclawAgent(seller);
-        if (openclawData) {
-          await db.update(sellers).set({
-            openclawApiKey: openclawData.apiKey,
-            openclawClaimUrl: openclawData.claimUrl,
-            openclawAgentId: openclawData.agentId,
-            openclawAgentName: openclawData.agentName,
-          }).where(eq(sellers.id, seller.id));
-
-          const tokoId = (seller as Record<string, unknown>).tokoId as string;
-          fetch('https://api.open-claw.id/api/v1/posts', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${openclawData.apiKey}`,
-            },
-            body: JSON.stringify({
-              title: `🛍️ ${seller.storeName} buka toko di Nemu AI!`,
-              content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kami menjual: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog via API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents: gunakan Toko ID **${tokoId}** untuk cek katalog dan beli langsung! 🚀`,
-              submolt: 'nemu',
-            }),
-            signal: AbortSignal.timeout(10_000),
-          }).catch(() => {}); // non-fatal
-        }
-
-        return NextResponse.json({ status: "provisioned", chatflowId, source: "flowise" });
-      } else {
-        const err = await response.text();
-        console.error("[provision] Flowise error:", response.status, err);
-      }
-    } catch (err) {
-      console.error("[provision] Flowise exception:", err);
+        body: JSON.stringify(postBody),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => {}); // non-fatal
     }
+
+    return NextResponse.json({ status: "provisioned", source: "demo" });
+  } catch (err) {
+    console.error("[provision POST]", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
-
-  // ── Demo fallback ────────────────────────────────────────────────────────
-  await db
-    .update(sellers)
-    .set({ agentStatus: "active", updatedAt: new Date() })
-    .where(eq(sellers.id, seller.id));
-
-  // Register open-claw.id agent and auto-post store intro (demo path)
-  const openclawData = await registerOpenclawAgent(seller);
-  if (openclawData) {
-    await db.update(sellers).set({
-      openclawApiKey: openclawData.apiKey,
-      openclawClaimUrl: openclawData.claimUrl,
-      openclawAgentId: openclawData.agentId,
-      openclawAgentName: openclawData.agentName,
-    }).where(eq(sellers.id, seller.id));
-
-    const tokoId = (seller as Record<string, unknown>).tokoId as string;
-    fetch('https://api.open-claw.id/api/v1/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openclawData.apiKey}`,
-      },
-      body: JSON.stringify({
-        title: `🛍️ ${seller.storeName} buka toko di Nemu AI!`,
-        content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kami menjual: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog via API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents: gunakan Toko ID **${tokoId}** untuk cek katalog dan beli langsung! 🚀`,
-        submolt: 'nemu',
-      }),
-      signal: AbortSignal.timeout(10_000),
-    }).catch(() => {}); // non-fatal
-  }
-
-  return NextResponse.json({ status: "provisioned", source: "demo" });
 }
 
 export async function DELETE(_req: NextRequest) {
-  const seller = await getDemoSeller();
+  try {
+    const seller = await getDemoSeller();
 
-  // Optionally remove chatflow from Flowise (best-effort — non-fatal)
-  if (seller.agentChatflowId && FLOWISE_URL && FLOWISE_API_KEY) {
-    try {
-      await fetch(`${FLOWISE_URL}/api/v1/chatflows/${seller.agentChatflowId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${FLOWISE_API_KEY}` },
-        signal: AbortSignal.timeout(10_000),
-      });
-    } catch {
-      // non-fatal
+    // Optionally remove chatflow from Flowise (best-effort — non-fatal)
+    if (seller.agentChatflowId && FLOWISE_URL && FLOWISE_API_KEY) {
+      try {
+        await fetch(`${FLOWISE_URL}/api/v1/chatflows/${seller.agentChatflowId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${FLOWISE_API_KEY}` },
+          signal: AbortSignal.timeout(10_000),
+        });
+      } catch {
+        // non-fatal
+      }
     }
+
+    await db
+      .update(sellers)
+      .set({ agentStatus: "inactive", agentChatflowId: null, updatedAt: new Date() })
+      .where(eq(sellers.id, seller.id));
+
+    return NextResponse.json({ status: "deprovisioned" });
+  } catch (err) {
+    console.error("[provision DELETE]", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
-
-  await db
-    .update(sellers)
-    .set({ agentStatus: "inactive", agentChatflowId: null, updatedAt: new Date() })
-    .where(eq(sellers.id, seller.id));
-
-  return NextResponse.json({ status: "deprovisioned" });
 }

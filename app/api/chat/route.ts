@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
 import { products, orders } from "@/lib/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import type { Product } from "@/lib/schema";
 
 const MINIMAX_BASE_URL = "https://api.minimax.io/v1";
@@ -138,7 +138,7 @@ function getOrderFlowState(
             address: extracted.address,
           };
         }
-        // Can't extract — stay at awaiting_details
+        // Can't extract — stay at awaiting_details and let agent ask again
         return { phase: "awaiting_details", product: intentProduct };
       }
     }
@@ -440,12 +440,28 @@ export async function POST(req: NextRequest) {
 
     // ── Order confirmation: we have name + address → create order ─────────
     if (state.phase === "details_received") {
-      const product =
-        catalog.find((p) => p.name === state.product) ?? catalog[0];
+      // Find the matched product, or fall back to the first active product
+      const matchedProduct = catalog.find((p) => p.name === state.product);
+      const product = matchedProduct ?? catalog[0];
 
       if (!product) {
-        // No products available — fall through to MiniMax
+        // No products at all — fall through to MiniMax to handle gracefully
+      } else if (product.stock === 0) {
+        // Product is out of stock — don't create order; let agent suggest alternatives
+        const alternatives = catalog.filter((p) => p.id !== product.id && p.stock > 0);
+        const altText = alternatives.length > 0
+          ? `\n\nTapi tenang kak, kami punya produk lain yang tersedia:\n${alternatives.slice(0, 3).map((p) => `• ${p.name} — Rp${Number(p.price).toLocaleString("id-ID")}`).join("\n")}`
+          : "\n\nMaaf ya kak, saat ini semua produk sedang habis stok 😔";
+        return NextResponse.json({
+          message: `😔 Maaf kak, **${product.name}** sedang habis stok.${altText}\n\nMau pilih produk lain atau tanya-tanya dulu? 😊`,
+          orderCreated: false,
+        });
       } else {
+        // Use seller's configured bank details, fallback to defaults
+        // TODO(hardcoded): bankName and bankAccount should always come from seller settings — no hardcoded defaults in production
+        const bankName = seller.bankName ?? "BCA";
+        const bankAccount = seller.bankAccount ?? "1234567890";
+
         const [order] = await db
           .insert(orders)
           .values({
@@ -474,7 +490,7 @@ export async function POST(req: NextRequest) {
           `📦 ${product.name} × 1 — Rp${Number(product.price).toLocaleString("id-ID")}\n` +
           `📍 ${state.address}\n` +
           `🔢 No. Pesanan: **#${orderNumber}**\n\n` +
-          `💳 Pembayaran via transfer BCA **1234567890** a/n ${seller.storeName}\n` +
+          `💳 Pembayaran via transfer ${bankName} **${bankAccount}** a/n ${seller.storeName}\n` +
           `Konfirmasi setelah transfer ya kak 🙏\n\n` +
           `Terima kasih sudah belanja di ${seller.storeName}! 🎉`;
 
@@ -503,7 +519,7 @@ export async function POST(req: NextRequest) {
     // ── MiniMax direct ────────────────────────────────────────────────────
     return await streamFromMiniMax(seller, catalog, rawMessages);
   } catch (err) {
-    console.error("Chat route error:", err);
+    console.error("[chat POST]", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

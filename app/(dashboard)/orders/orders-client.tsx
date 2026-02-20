@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatRupiah, ORDER_STATUS_LABELS } from "@/lib/utils";
@@ -203,7 +203,7 @@ export default function OrdersClient({
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((order) => {
-                  const items = order.items as {
+                  const items = (order.items ?? []) as {
                     productName: string;
                     quantity: number;
                   }[];

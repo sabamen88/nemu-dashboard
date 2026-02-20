@@ -213,7 +213,7 @@ export default async function DashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {recentOrders.map((order) => {
-                      const items = order.items as { productName: string; quantity: number }[];
+                      const items = (order.items ?? []) as { productName: string; quantity: number }[];
                       return (
                         <tr key={order.id} className="hover:bg-gray-50 transition">
                           <td className="py-3 font-mono text-xs text-gray-400">

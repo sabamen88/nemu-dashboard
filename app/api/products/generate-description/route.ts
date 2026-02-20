@@ -104,21 +104,26 @@ async function generateWithMinimax(name: string, category: string): Promise<stri
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { name, category } = body as { name?: string; category?: string };
-
-  if (!name) {
-    return NextResponse.json({ error: "Nama produk diperlukan" }, { status: 400 });
-  }
-
-  const cat = category ?? "default";
-
   try {
-    const description = await generateWithMinimax(name, cat);
-    return NextResponse.json({ description });
+    const body = await req.json();
+    const { name, category } = body as { name?: string; category?: string };
+
+    if (!name) {
+      return NextResponse.json({ error: "Nama produk diperlukan" }, { status: 400 });
+    }
+
+    const cat = category ?? "default";
+
+    try {
+      const description = await generateWithMinimax(name, cat);
+      return NextResponse.json({ description });
+    } catch (err) {
+      console.warn("[generate-description] MiniMax failed, using fallback:", err);
+      const description = buildFallbackDescription(name, cat);
+      return NextResponse.json({ description });
+    }
   } catch (err) {
-    console.warn("MiniMax description generation failed, using fallback:", err);
-    const description = buildFallbackDescription(name, cat);
-    return NextResponse.json({ description });
+    console.error("[generate-description POST]", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

@@ -10,6 +10,8 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
     description: seller.description ?? "",
     category: seller.category,
     phone: seller.phone ?? "",
+    bankName: seller.bankName ?? "",
+    bankAccount: seller.bankAccount ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -166,6 +168,32 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
               placeholder="8123456789"
             />
           </div>
+        </div>
+
+        {/* Bank details — used in order confirmations */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nama Bank</label>
+          <input
+            type="text"
+            value={form.bankName}
+            onChange={(e) => setForm({ ...form, bankName: e.target.value })}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
+            style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
+            placeholder="Contoh: BCA, BRI, Mandiri, BNI..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nomor Rekening</label>
+          <input
+            type="text"
+            value={form.bankAccount}
+            onChange={(e) => setForm({ ...form, bankAccount: e.target.value })}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
+            style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
+            placeholder="Contoh: 1234567890"
+          />
+          <p className="text-xs text-gray-400 mt-1">Nomor rekening ini akan muncul di konfirmasi pesanan pembeli</p>
         </div>
 
         <button

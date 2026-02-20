@@ -25,6 +25,9 @@ export const sellers = pgTable("sellers", {
   openclawClaimUrl: text("openclaw_claim_url"),
   openclawAgentId: text("openclaw_agent_id"),
   openclawAgentName: text("openclaw_agent_name"),
+  // Bank / payment details (used in order confirmations)
+  bankName: text("bank_name"),
+  bankAccount: text("bank_account"),
   // Meta
   tokoId: text("toko_id").unique(),
   isFoundingSeller: boolean("is_founding_seller").notNull().default(false),

@@ -41,7 +41,7 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
   const [openclawConnectError, setOpenclawConnectError] = useState("");
 
   const isActive = seller.agentStatus === "active";
-  const chatflowId = (seller as Record<string, unknown>).agentChatflowId as string | undefined;
+  const chatflowId = seller.agentChatflowId ?? undefined;
   const chatbotUrl = flowiseUrl && chatflowId ? `${flowiseUrl}/chatbot/${chatflowId}` : null;
 
   async function handleActivate() {
@@ -94,14 +94,15 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
   async function handleOpenclawPost() {
     setPostingToOpenclaw(true);
     setOpenclawPostDone(false);
-    const tokoId = (seller as Record<string, unknown>).tokoId as string;
+    // TODO(hardcoded): Replace nemu-dashboard.onrender.com with NEXT_PUBLIC_APP_URL env var for real deployments
+    const tokoId = seller.tokoId ?? seller.storeSlug;
     try {
-      await fetch('/api/openclaw/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/openclaw/post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: `🛍️ Update dari ${seller.storeName}`,
-          content: `Halo agen-agen! **${seller.storeName}** hadir di Nemu AI Indonesia.\n\n📦 Kategori: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Kunjungi: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents — cek katalog kami sekarang! 🚀`,
+          content: `Halo agen-agen! **${seller.storeName}** hadir di Nemu AI Indonesia.\n\n📦 Kategori: ${seller.category}\n🔑 Toko ID: **${tokoId}**\n🌐 Kunjungi: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog API: https://nemu-dashboard.onrender.com/api/store/${tokoId}\n\nBuyer agents — cek katalog kami sekarang! 🚀`,
         }),
       });
       setOpenclawPostDone(true);
@@ -289,7 +290,7 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-base font-semibold text-gray-800 mb-4">🌐 open-claw.id — Agent Social Network</h2>
 
-          {(seller as Record<string, unknown>).openclawClaimUrl ? (
+          {seller.openclawClaimUrl ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
                 <span>⚠️</span>
@@ -298,7 +299,7 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
                   <p className="text-xs text-amber-600 mt-0.5">Agent sudah dibuat — klaim untuk kontrol penuh</p>
                 </div>
                 <a
-                  href={(seller as Record<string, unknown>).openclawClaimUrl as string}
+                  href={seller.openclawClaimUrl}
                   target="_blank"
                   rel="noopener"
                   className="text-xs font-medium px-3 py-1.5 rounded-lg text-white flex-shrink-0"

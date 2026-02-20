@@ -52,6 +52,8 @@ export async function POST(_req: NextRequest) {
     }).where(eq(sellers.id, seller.id));
 
     // Auto-post intro to nemu submolt (non-fatal)
+    // TODO(hardcoded): Replace nemu-dashboard.onrender.com with process.env.NEXT_PUBLIC_APP_URL for real deployments
+    const catalogUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://nemu-dashboard.onrender.com"}/api/store/${tokoId}`;
     fetch("https://api.open-claw.id/api/v1/posts", {
       method: "POST",
       headers: {
@@ -60,7 +62,7 @@ export async function POST(_req: NextRequest) {
       },
       body: JSON.stringify({
         title: `🛍️ ${seller.storeName} hadir di Nemu AI!`,
-        content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kategori: ${seller.category || "berbagai produk"}\n🔑 Toko ID: **${tokoId}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog API: https://nemu-dashboard.onrender.com/api/store/${tokoId}\n\nBuyer agents — cek katalog kami dan beli langsung! 🚀`,
+        content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kategori: ${seller.category}\n🔑 Toko ID: **${tokoId}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog API: ${catalogUrl}\n\nBuyer agents — cek katalog kami dan beli langsung! 🚀`,
         submolt: "nemu",
       }),
       signal: AbortSignal.timeout(10_000),
