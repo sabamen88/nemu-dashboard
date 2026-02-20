@@ -4,7 +4,7 @@
 import { db } from "@/lib/db";
 import { sellers } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-import { generateInviteCode, generateSlug } from "@/lib/utils";
+import { generateInviteCode, generateSlug, generateTokoId } from "@/lib/utils";
 
 const DEMO_CLERK_ID = "demo_seller_001";
 
@@ -19,14 +19,22 @@ export async function getDemoSeller() {
       clerkUserId: DEMO_CLERK_ID,
       storeName: "Toko Demo Nemu",
       storeSlug: generateSlug("toko-demo-nemu"),
+      tokoId: generateTokoId("Toko Demo Nemu"), // → "DEMONEMU"
       category: "Fashion & Pakaian",
       description: "Toko demo untuk Nemu AI — ganti dengan toko kamu!",
       inviteCode: generateInviteCode(),
-      onboardingComplete: true,
       onboardingCompleted: true,
       isFoundingSeller: true,
       agentStatus: "inactive",
     }).returning();
+  }
+
+  // Backfill tokoId for existing sellers that don't have one yet
+  if (seller && !seller.tokoId) {
+    [seller] = await db.update(sellers)
+      .set({ tokoId: generateTokoId(seller.storeName) })
+      .where(eq(sellers.id, seller.id))
+      .returning();
   }
 
   return seller;

@@ -21,6 +21,7 @@ export const sellers = pgTable("sellers", {
   aiCustomPrompt: text("ai_custom_prompt"), // Custom system prompt personality
   autoReply: boolean("auto_reply").notNull().default(true),
   // Meta
+  tokoId: text("toko_id").unique(),
   isFoundingSeller: boolean("is_founding_seller").notNull().default(false),
   onboardingComplete: boolean("onboarding_complete").notNull().default(false),
   onboardingCompleted: boolean("onboarding_completed").notNull().default(false),

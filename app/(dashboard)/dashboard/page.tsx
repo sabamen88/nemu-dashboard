@@ -7,6 +7,7 @@ import { eq, count, desc, and, sql, lte } from "drizzle-orm";
 import { formatRupiah, ORDER_STATUS_LABELS } from "@/lib/utils";
 import AgentToggle from "./agent-toggle";
 import WalletCard from "./wallet-card";
+import SellerIdentityCard from "./seller-identity-card";
 import Link from "next/link";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -96,6 +97,15 @@ export default async function DashboardPage() {
         </h1>
         <p className="text-gray-500 mt-1">{seller.storeName} · <span className="text-gray-400">nemu-ai.com/toko/{seller.storeSlug}</span></p>
       </div>
+
+      {/* Seller Identity Card */}
+      <SellerIdentityCard
+        storeName={seller.storeName}
+        storeSlug={seller.storeSlug}
+        tokoId={seller.tokoId ?? null}
+        inviteCode={seller.inviteCode}
+        isFoundingSeller={seller.isFoundingSeller}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

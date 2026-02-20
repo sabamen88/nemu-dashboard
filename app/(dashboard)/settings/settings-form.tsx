@@ -40,6 +40,76 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
         <p className="text-gray-500 mt-1">Kelola informasi dan konfigurasi toko kamu</p>
       </div>
 
+      {/* Identitas Toko — read-only permanent identity */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🪪</span>
+          <h2 className="font-bold text-gray-900 text-lg">Identitas Toko</h2>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Permanen</span>
+        </div>
+        <p className="text-xs text-gray-400">
+          Identitas toko kamu yang unik dan tidak dapat diubah. Bagikan Toko ID ke pembeli agar mereka mudah menemukanmu.
+        </p>
+
+        {/* Toko ID */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Toko ID</label>
+          <div className="flex gap-2">
+            <div
+              className="flex-1 rounded-xl px-4 py-3 font-mono font-bold text-xl tracking-widest text-center border-2"
+              style={{ color: "#7B5CF0", borderColor: "#7B5CF0", backgroundColor: "#faf5ff" }}
+            >
+              {seller.tokoId ?? seller.storeSlug}
+            </div>
+            <button
+              onClick={() => copyToClipboard(seller.tokoId ?? seller.storeSlug)}
+              className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
+              style={{ backgroundColor: "#7B5CF0" }}
+            >
+              📋 Salin
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">
+            Contoh pesan ke pembeli: <span className="font-mono font-semibold text-gray-600">"Cari toko aku di Nemu: {seller.tokoId ?? seller.storeSlug}"</span>
+          </p>
+        </div>
+
+        {/* Store URL */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Link Toko Publik</label>
+          <div className="flex gap-2">
+            <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 font-mono truncate">
+              nemu-ai.com/toko/{seller.storeSlug}
+            </div>
+            <button
+              onClick={() => copyToClipboard(`https://nemu-ai.com/toko/${seller.storeSlug}`)}
+              className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
+              style={{ backgroundColor: "#7B5CF0" }}
+            >
+              📋 Salin
+            </button>
+          </div>
+        </div>
+
+        {/* Invite code */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Kode Undangan</label>
+          <div className="flex gap-2">
+            <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono font-bold text-gray-800 tracking-widest text-center">
+              {seller.inviteCode}
+            </div>
+            <button
+              onClick={() => copyToClipboard(seller.inviteCode)}
+              className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
+              style={{ backgroundColor: "#7B5CF0" }}
+            >
+              📋 Salin
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">Undang seller lain ke Nemu AI</p>
+        </div>
+      </div>
+
       {/* Store Info */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
         <h2 className="font-bold text-gray-900 text-lg">🏪 Informasi Toko</h2>

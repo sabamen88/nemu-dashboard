@@ -24,6 +24,23 @@ export function generateSlug(name: string): string {
     .trim();
 }
 
+export function generateTokoId(storeName: string): string {
+  // Take first word(s) up to 9 chars, uppercase, strip spaces/special chars
+  // "Toko Baju Ayu" → "BAJUAYU"
+  // "Fashion Keren Jakarta" → "FASHIONKE"
+  // Min 4 chars, max 9 chars
+  const words = storeName.trim().split(/\s+/);
+  // Skip common words like "Toko", "Store", "Shop", "Warung", "Kios"
+  const skip = ['toko', 'store', 'shop', 'warung', 'kios'];
+  const filtered = words.filter(w => !skip.includes(w.toLowerCase()));
+  const base = (filtered.length > 0 ? filtered : words)
+    .join('')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 9);
+  return base.length >= 4 ? base : base.padEnd(4, '0');
+}
+
 export function generateInviteCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }

@@ -5,7 +5,7 @@ import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
 import { sellers } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-import { generateSlug } from "@/lib/utils";
+import { generateSlug, generateTokoId } from "@/lib/utils";
 
 // Step flow: language → store_name → category → description → phone → complete
 const STEP_ORDER = ["language", "store_name", "category", "description", "phone", "complete"];
@@ -182,6 +182,7 @@ export async function POST(req: NextRequest) {
           .set({
             storeName: updatedContext.storeName || seller.storeName,
             storeSlug,
+            tokoId: generateTokoId(updatedContext.storeName || "toko-nemu"),
             category: updatedContext.category || seller.category,
             description: updatedContext.description || null,
             phone: updatedContext.phone || null,

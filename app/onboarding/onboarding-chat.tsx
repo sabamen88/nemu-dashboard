@@ -370,11 +370,23 @@ export default function OnboardingChat() {
           {done && (
             <div className="flex justify-center my-4">
               <div
-                className="px-6 py-4 rounded-2xl text-center text-white shadow-lg"
+                className="w-full max-w-sm px-6 py-5 rounded-2xl text-center text-white shadow-lg"
                 style={{ background: "linear-gradient(135deg, #7B5CF0, #625fff)" }}
               >
                 <div className="text-3xl mb-2">🎉🎊🚀</div>
-                <p className="font-bold text-sm">Toko kamu sudah AKTIF!</p>
+                <p className="font-bold text-base">
+                  {context.storeName ? `Toko "${context.storeName}" sudah AKTIF!` : "Toko kamu sudah AKTIF!"}
+                </p>
+                <div className="mt-3 mb-3 bg-white/20 rounded-xl px-4 py-3">
+                  <p className="text-indigo-100 text-xs mb-1">Toko ID kamu</p>
+                  <p className="font-mono font-black text-xl tracking-widest">
+                    {/* Show a preview of what the Toko ID will be */}
+                    {context.storeName
+                      ? context.storeName.trim().split(/\s+/).filter(w => !['toko','store','shop','warung','kios'].includes(w.toLowerCase())).join('').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,9) || context.storeName.slice(0,9).toUpperCase()
+                      : "—"}
+                  </p>
+                  <p className="text-indigo-200 text-[10px] mt-1">Toko ID kamu akan tampil di dashboard</p>
+                </div>
                 <p className="text-indigo-200 text-xs mt-1">Mengalihkan ke dashboard...</p>
                 <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
                   <div
