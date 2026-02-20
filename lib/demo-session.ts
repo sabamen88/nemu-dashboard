@@ -37,5 +37,11 @@ export async function getDemoSeller() {
       .returning();
   }
 
+  if (!seller) {
+    throw new Error(
+      "Demo seller not found. Run: node scripts/seed-demo.mjs to seed demo data."
+    );
+  }
+
   return seller;
 }

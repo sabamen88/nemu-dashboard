@@ -9,6 +9,15 @@ import { eq, and } from "drizzle-orm";
 const VALID_STATUSES = ["confirmed", "shipped", "done", "cancelled"] as const;
 type ValidStatus = typeof VALID_STATUSES[number];
 
+// Valid forward transitions: currentStatus → allowed next statuses
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending:    ["confirmed", "cancelled"],
+  confirmed:  ["shipped", "cancelled"],
+  shipped:    ["done"],
+  done:       [], // terminal
+  cancelled:  [], // terminal
+};
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -36,6 +45,20 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Pesanan tidak ditemukan" },
         { status: 404 }
+      );
+    }
+
+    // Enforce valid status transitions
+    const allowed = VALID_TRANSITIONS[existing.status] ?? [];
+    if (!allowed.includes(status)) {
+      return NextResponse.json(
+        {
+          error: `Perubahan status tidak valid: ${existing.status} → ${status}. ` +
+                 (allowed.length > 0
+                   ? `Status yang diizinkan: ${allowed.join(", ")}.`
+                   : `Pesanan dengan status "${existing.status}" tidak dapat diubah.`),
+        },
+        { status: 400 }
       );
     }
 

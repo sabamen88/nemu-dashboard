@@ -92,27 +92,35 @@ function getOrderFlowState(
   let intentIdx = -1;
   let intentProduct = "";
   let awaitingIdx = -1;
+  // Track extracted details so we can reset if an order confirmation appears after
+  let detailsExtracted: { buyerName: string; address: string } | null = null;
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
 
-    // Check if any assistant message already confirmed an order
     if (msg.role === "assistant") {
       const c = msg.content;
-      // Order confirmation: contains an order number pattern
+
+      // Order confirmation found → this flow is COMPLETE. Reset all state so
+      // any subsequent purchase intent in the same conversation starts fresh.
       if (
         (c.includes("No. Pesanan") || c.includes("no. pesanan") || c.includes("Nomor Pesanan")) &&
         c.includes("#")
       ) {
-        return { phase: "order_created", orderId: "" };
+        intentIdx = -1;
+        awaitingIdx = -1;
+        detailsExtracted = null;
+        intentProduct = "";
+        continue; // keep scanning — buyer may start a new order
       }
 
-      // Check if assistant asked for name/address (after intent)
+      // Check if assistant asked for name/address (after intent, before awaiting)
       if (intentIdx >= 0 && awaitingIdx < 0) {
         const cLower = c.toLowerCase();
         if (
           (cLower.includes("nama") && cLower.includes("alamat")) ||
-          (cLower.includes("nama lengkap") || cLower.includes("alamat pengiriman"))
+          cLower.includes("nama lengkap") ||
+          cLower.includes("alamat pengiriman")
         ) {
           awaitingIdx = i;
         }
@@ -125,25 +133,31 @@ function getOrderFlowState(
         // Reset and track the most recent intent
         intentIdx = i;
         awaitingIdx = -1;
+        detailsExtracted = null;
         const found = extractProductFromMessage(msg.content, catalog);
         intentProduct = found ? found.name : (catalog[0]?.name ?? "");
       } else if (awaitingIdx >= 0 && i > awaitingIdx) {
-        // User responded after assistant asked for details
+        // User responded after assistant asked for details — try to extract
         const extracted = extractNameAndAddress(msg.content);
         if (extracted) {
-          return {
-            phase: "details_received",
-            product: intentProduct,
-            buyerName: extracted.buyerName,
-            address: extracted.address,
-          };
+          detailsExtracted = extracted;
+        } else {
+          // Can't extract — clear any stale extracted data
+          detailsExtracted = null;
         }
-        // Can't extract — stay at awaiting_details and let agent ask again
-        return { phase: "awaiting_details", product: intentProduct };
       }
     }
   }
 
+  // Return final state based on what was accumulated
+  if (detailsExtracted) {
+    return {
+      phase: "details_received",
+      product: intentProduct,
+      buyerName: detailsExtracted.buyerName,
+      address: detailsExtracted.address,
+    };
+  }
   if (awaitingIdx >= 0) return { phase: "awaiting_details", product: intentProduct };
   if (intentIdx >= 0) return { phase: "intent_detected", product: intentProduct };
   return { phase: "none" };
