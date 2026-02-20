@@ -203,12 +203,12 @@ export default async function DashboardPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      <th className="text-left pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">No. Pesanan</th>
+                      <th className="text-left pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">No.</th>
                       <th className="text-left pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Pembeli</th>
-                      <th className="text-left pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Produk</th>
+                      <th className="hidden sm:table-cell text-left pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Produk</th>
                       <th className="text-right pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Total</th>
                       <th className="text-center pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
-                      <th className="text-right pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Tanggal</th>
+                      <th className="hidden sm:table-cell text-right pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Tanggal</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -216,22 +216,22 @@ export default async function DashboardPage() {
                       const items = (order.items ?? []) as { productName: string; quantity: number }[];
                       return (
                         <tr key={order.id} className="hover:bg-gray-50 transition">
-                          <td className="py-3 font-mono text-xs text-gray-400">
+                          <td className="py-3 font-mono text-xs text-gray-400 whitespace-nowrap">
                             #{order.id.slice(-6).toUpperCase()}
                           </td>
-                          <td className="py-3 font-medium text-gray-800">{order.buyerName}</td>
-                          <td className="py-3 text-gray-500 max-w-[140px] truncate">
+                          <td className="py-3 font-medium text-gray-800 max-w-[100px] truncate">{order.buyerName}</td>
+                          <td className="hidden sm:table-cell py-3 text-gray-500 max-w-[140px] truncate">
                             {items.map(i => `${i.quantity}× ${i.productName}`).join(", ")}
                           </td>
-                          <td className="py-3 text-right font-bold text-gray-800">
+                          <td className="py-3 text-right font-bold text-gray-800 whitespace-nowrap">
                             {formatRupiah(Number(order.total))}
                           </td>
                           <td className="py-3 text-center">
-                            <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${STATUS_BADGE[order.status] ?? "bg-gray-100 text-gray-600"}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${STATUS_BADGE[order.status] ?? "bg-gray-100 text-gray-600"}`}>
                               {ORDER_STATUS_LABELS[order.status] ?? order.status}
                             </span>
                           </td>
-                          <td className="py-3 text-right text-xs text-gray-400">
+                          <td className="hidden sm:table-cell py-3 text-right text-xs text-gray-400 whitespace-nowrap">
                             {new Date(order.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                           </td>
                         </tr>

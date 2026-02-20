@@ -27,15 +27,15 @@ export default function WalletCard() {
   return (
     <Link
       href="/wallet"
-      className="group relative overflow-hidden rounded-2xl p-5 text-white transition-all hover:shadow-lg"
-      style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" }}
+      className="group relative rounded-2xl p-5 text-white transition-all hover:shadow-lg block"
+      style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", overflow: "hidden" }}
     >
-      {/* Glow */}
+      {/* Glow — kept fully inside card */}
       <div
-        className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 group-hover:opacity-30 transition-opacity"
+        className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 group-hover:opacity-30 transition-opacity pointer-events-none"
         style={{
           background: "radial-gradient(circle, #4f39f6, transparent)",
-          transform: "translate(30%, -30%)",
+          transform: "translate(15%, -15%)",
         }}
       />
       <div className="relative">
