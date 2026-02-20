@@ -192,8 +192,8 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
                 disabled={loading || syncLoading}
                 className="text-xs px-3 py-1.5 rounded-lg border font-medium transition hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
                 style={{
-                  borderColor: syncStatus === "success" ? "#22c55e" : "#E91E63",
-                  color: syncStatus === "success" ? "#22c55e" : "#E91E63",
+                  borderColor: syncStatus === "success" ? "#22c55e" : "#4f39f6",
+                  color: syncStatus === "success" ? "#22c55e" : "#4f39f6",
                   backgroundColor:
                     syncStatus === "success"
                       ? "#f0fdf4"
@@ -229,7 +229,7 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
               onClick={handleActivate}
               disabled={loading || seller.agentStatus === "provisioning"}
               className="w-full text-white py-3 px-4 rounded-xl text-sm font-semibold transition hover:opacity-90 disabled:opacity-50 shadow-sm"
-              style={{ backgroundColor: "#E91E63" }}
+              style={{ backgroundColor: "#4f39f6" }}
             >
               {loading || seller.agentStatus === "provisioning"
                 ? "⏳ Menyiapkan Agen..."
@@ -276,7 +276,7 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
             <button
               onClick={() => window.dispatchEvent(new CustomEvent("open-chat-widget"))}
               className="px-4 py-2 rounded-lg text-sm font-medium text-white transition hover:opacity-90"
-              style={{ backgroundColor: "#E91E63" }}
+              style={{ backgroundColor: "#4f39f6" }}
             >
               💬 Buka Chat Sekarang
             </button>
@@ -300,7 +300,7 @@ Selalu sapa pembeli dengan "Halo kak!" dan berbicara dengan nada ramah.
 Fokus pada produk [kategori toko] dan berikan rekomendasi yang personal.`}
           rows={8}
           className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:border-transparent resize-none font-mono"
-          style={{ focusRingColor: "#E91E63" } as React.CSSProperties}
+          style={{ focusRingColor: "#4f39f6" } as React.CSSProperties}
         />
 
         <div className="flex items-center justify-between mt-3">
@@ -311,7 +311,7 @@ Fokus pada produk [kategori toko] dan berikan rekomendasi yang personal.`}
             onClick={handleSavePrompt}
             disabled={savingPrompt || customPrompt.length > 2000}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-            style={{ backgroundColor: "#E91E63" }}
+            style={{ backgroundColor: "#4f39f6" }}
           >
             {savingPrompt ? "Menyimpan..." : promptSaved ? "✓ Tersimpan!" : "Simpan Kepribadian AI"}
           </button>
@@ -338,7 +338,7 @@ Fokus pada produk [kategori toko] dan berikan rekomendasi yang personal.`}
             </div>
             <div className="flex justify-between py-2 border-b border-gray-50">
               <span className="text-gray-500">Flowise URL</span>
-              <a href={flowiseUrl} target="_blank" rel="noopener" className="text-pink-500 hover:underline text-xs">
+              <a href={flowiseUrl} target="_blank" rel="noopener" className="text-indigo-500 hover:underline text-xs">
                 {flowiseUrl}
               </a>
             </div>

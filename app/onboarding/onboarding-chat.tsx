@@ -33,7 +33,7 @@ function TypingIndicator() {
     <div className="flex items-end gap-2">
       <div
         className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
-        style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+        style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
       >
         <span>✨</span>
       </div>
@@ -205,40 +205,36 @@ export default function OnboardingChat() {
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(180deg, #fce4ec 0%, #f8f9fa 15%)" }}
+      style={{ background: "linear-gradient(180deg, #f5f3ff 0%, #f8f9fa 15%)" }}
     >
       {/* Header */}
-      <div
-        className="sticky top-0 z-10 shadow-sm"
-        style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
-      >
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           {/* Logo */}
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-black text-lg">N</span>
-          </div>
+          <img
+            src="https://cdn.jsdelivr.net/gh/sabamen88/nemu-assets@main/brand/nemu-logo.png"
+            alt="Nemu AI"
+            className="h-7 w-auto flex-shrink-0"
+          />
           <div className="flex-1 min-w-0">
-            <h1 className="text-white font-bold text-base leading-tight">
-              Selamat Datang di Nemu AI 🛍️
-            </h1>
-            <p className="text-pink-200 text-xs truncate">
-              Setup toko online kamu — cuma 2 menit!
+            <p className="text-indigo-500 text-xs truncate">
+              Setup toko online kamu — cuma 2 menit! 🛍️
             </p>
           </div>
           {/* Skip button */}
           <button
             onClick={() => router.push("/dashboard?skip_onboarding=1")}
-            className="text-pink-200 text-xs hover:text-white transition px-2 py-1 rounded-lg hover:bg-white/10 flex-shrink-0"
+            className="text-gray-400 text-xs hover:text-indigo-600 transition px-2 py-1 rounded-lg hover:bg-indigo-50 flex-shrink-0"
           >
             Lewati
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-white/20">
+        <div className="h-1 bg-gray-100">
           <div
-            className="h-full bg-white/80 transition-all duration-700 ease-out"
-            style={{ width: `${progressPercent}%` }}
+            className="h-full transition-all duration-700 ease-out"
+            style={{ width: `${progressPercent}%`, backgroundColor: "#4f39f6" }}
           />
         </div>
 
@@ -248,12 +244,13 @@ export default function OnboardingChat() {
             <div key={s.id} className="flex flex-col items-center gap-0.5">
               <div
                 className={`w-2 h-2 rounded-full transition-all ${
-                  i <= stepIndex ? "bg-white scale-125" : "bg-white/30"
+                  i <= stepIndex ? "scale-125" : "bg-gray-200"
                 }`}
+                style={i <= stepIndex ? { backgroundColor: "#4f39f6" } : {}}
               />
               <span
                 className={`text-[9px] font-medium transition-all hidden sm:block ${
-                  i === stepIndex ? "text-white" : "text-pink-300"
+                  i === stepIndex ? "text-indigo-600" : "text-gray-400"
                 }`}
               >
                 {s.label}
@@ -264,10 +261,11 @@ export default function OnboardingChat() {
           <div className="flex flex-col items-center gap-0.5">
             <div
               className={`w-2 h-2 rounded-full transition-all ${
-                step === "complete" ? "bg-white scale-125" : "bg-white/30"
+                step === "complete" ? "scale-125" : "bg-gray-200"
               }`}
+              style={step === "complete" ? { backgroundColor: "#4f39f6" } : {}}
             />
-            <span className="text-[9px] font-medium text-pink-300 hidden sm:block">
+            <span className="text-[9px] font-medium text-gray-400 hidden sm:block">
               🎉
             </span>
           </div>
@@ -285,7 +283,7 @@ export default function OnboardingChat() {
               {msg.role === "ai" && (
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+                  style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
                 >
                   <span>✨</span>
                 </div>
@@ -297,7 +295,7 @@ export default function OnboardingChat() {
                       ? "text-white rounded-2xl rounded-br-sm shadow-sm"
                       : "bg-white text-gray-800 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100"
                   }`}
-                  style={msg.role === "user" ? { backgroundColor: "#E91E63" } : {}}
+                  style={msg.role === "user" ? { backgroundColor: "#4f39f6" } : {}}
                 >
                   {msg.content || (
                     <span className="flex gap-1.5 items-center h-4">
@@ -323,17 +321,17 @@ export default function OnboardingChat() {
                   onClick={() => handleSend(cat)}
                   className="text-sm px-3 py-1.5 rounded-full border-2 font-medium transition-all hover:text-white hover:shadow-md active:scale-95"
                   style={{
-                    borderColor: "#E91E63",
-                    color: "#E91E63",
+                    borderColor: "#4f39f6",
+                    color: "#4f39f6",
                     transition: "all 0.15s ease",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = "#E91E63";
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "#4f39f6";
                     (e.currentTarget as HTMLElement).style.color = "white";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.backgroundColor = "";
-                    (e.currentTarget as HTMLElement).style.color = "#E91E63";
+                    (e.currentTarget as HTMLElement).style.color = "#4f39f6";
                   }}
                 >
                   {cat}
@@ -359,11 +357,11 @@ export default function OnboardingChat() {
             <div className="flex justify-center my-4">
               <div
                 className="px-6 py-4 rounded-2xl text-center text-white shadow-lg"
-                style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+                style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
               >
                 <div className="text-3xl mb-2">🎉🎊🚀</div>
                 <p className="font-bold text-sm">Toko kamu sudah AKTIF!</p>
-                <p className="text-pink-200 text-xs mt-1">Mengalihkan ke dashboard...</p>
+                <p className="text-indigo-200 text-xs mt-1">Mengalihkan ke dashboard...</p>
                 <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-white rounded-full"
@@ -398,13 +396,13 @@ export default function OnboardingChat() {
               disabled={loading || done}
               autoComplete="off"
               className="flex-1 px-4 py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 disabled:opacity-60"
-              style={{ "--tw-ring-color": "#E91E63" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#4f39f6" } as React.CSSProperties}
             />
             <button
               type="submit"
               disabled={!input.trim() || loading || done}
               className="w-12 h-12 rounded-2xl flex items-center justify-center text-white transition-all hover:opacity-90 disabled:opacity-40 active:scale-95 flex-shrink-0 shadow-sm"
-              style={{ backgroundColor: "#E91E63" }}
+              style={{ backgroundColor: "#4f39f6" }}
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -45,7 +45,7 @@ export default function CatalogGrid({ products, filter }: Props) {
           <Link
             href="/catalog/new"
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white rounded-xl hover:opacity-90 transition"
-            style={{ backgroundColor: '#E91E63' }}
+            style={{ backgroundColor: '#4f39f6' }}
           >
             ✨ Tambah Produk Pertama
           </Link>
@@ -94,7 +94,7 @@ export default function CatalogGrid({ products, filter }: Props) {
             <div className="p-3">
               <p className="font-semibold text-gray-900 text-sm truncate">{product.name}</p>
               <p className="text-xs text-gray-400 mt-0.5">Stok: {product.stock} pcs</p>
-              <p className="font-bold text-base mt-1" style={{ color: '#E91E63' }}>
+              <p className="font-bold text-base mt-1" style={{ color: '#4f39f6' }}>
                 {formatRupiah(Number(product.price))}
               </p>
             </div>

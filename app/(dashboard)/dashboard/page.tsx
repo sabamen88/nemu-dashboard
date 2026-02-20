@@ -12,7 +12,7 @@ import Link from "next/link";
 const STATUS_BADGE: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
   confirmed: "bg-blue-100 text-blue-700",
-  shipped: "bg-purple-100 text-purple-700",
+  shipped: "bg-indigo-100 text-indigo-700",
   done: "bg-green-100 text-green-700",
   cancelled: "bg-red-100 text-red-600",
 };
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
       label: "Pesan Belum Dibaca",
       value: unreadCount[0].count,
       icon: "💬",
-      color: "bg-pink-50 text-pink-600",
+      color: "bg-indigo-50 text-indigo-600",
       href: "/messages",
     },
     {
@@ -80,11 +80,11 @@ export default async function DashboardPage() {
       {/* Founding Seller Banner */}
       {seller.isFoundingSeller && (
         <div className="rounded-2xl p-4 text-white flex items-center gap-4"
-          style={{ background: 'linear-gradient(135deg, #E91E63, #C2185B)' }}>
+          style={{ background: 'linear-gradient(135deg, #4f39f6, #625fff)' }}>
           <span className="text-3xl">🏆</span>
           <div>
             <p className="font-bold text-lg">Kamu adalah Founding Seller Nemu AI!</p>
-            <p className="text-pink-100 text-sm">Nikmati keuntungan eksklusif dan akses prioritas ke fitur baru.</p>
+            <p className="text-indigo-100 text-sm">Nikmati keuntungan eksklusif dan akses prioritas ke fitur baru.</p>
           </div>
         </div>
       )}
@@ -116,14 +116,14 @@ export default async function DashboardPage() {
         <Link
           href="/catalog"
           className="flex items-center gap-3 rounded-2xl px-5 py-4 text-white font-medium text-sm hover:opacity-90 transition"
-          style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+          style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
         >
           <span className="text-xl">⚠️</span>
           <span>
             <strong>{lowStockCount} produk hampir habis stok!</strong>{" "}
             Segera update katalogmu.
           </span>
-          <span className="ml-auto text-pink-200 text-xs font-semibold whitespace-nowrap">
+          <span className="ml-auto text-indigo-200 text-xs font-semibold whitespace-nowrap">
             Lihat Katalog →
           </span>
         </Link>
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-bold text-gray-900">Pesanan Terbaru</h2>
-              <Link href="/orders" className="text-sm font-medium hover:underline" style={{ color: '#E91E63' }}>
+              <Link href="/orders" className="text-sm font-medium hover:underline" style={{ color: '#4f39f6' }}>
                 Lihat semua →
               </Link>
             </div>
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
                 <p className="text-sm text-gray-400 mt-1">Tambah produk untuk mulai berjualan</p>
                 <Link href="/catalog/new"
                   className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 text-sm font-medium text-white rounded-xl transition hover:opacity-90"
-                  style={{ backgroundColor: '#E91E63' }}>
+                  style={{ backgroundColor: '#4f39f6' }}>
                   Tambah Produk Pertama
                 </Link>
               </div>

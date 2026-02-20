@@ -70,7 +70,7 @@ export default function MessagesView({ conversations, agentActive }: Props) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="🔍 Cari percakapan..."
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-pink-300"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-indigo-300"
           />
         </div>
 
@@ -91,13 +91,13 @@ export default function MessagesView({ conversations, agentActive }: Props) {
                 key={conv.phone}
                 onClick={() => setSelected(conv)}
                 className={`w-full text-left px-4 py-3.5 border-b border-gray-50 hover:bg-gray-50 transition ${
-                  selected?.phone === conv.phone ? "bg-pink-50" : ""
+                  selected?.phone === conv.phone ? "bg-indigo-50" : ""
                 }`}
-                style={selected?.phone === conv.phone ? { borderLeft: '3px solid #E91E63' } : { borderLeft: '3px solid transparent' }}
+                style={selected?.phone === conv.phone ? { borderLeft: '3px solid #4f39f6' } : { borderLeft: '3px solid transparent' }}
               >
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold text-white flex-shrink-0"
-                    style={{ backgroundColor: '#E91E63' }}>
+                    style={{ backgroundColor: '#4f39f6' }}>
                     {conv.name[0]?.toUpperCase() ?? "?"}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -112,7 +112,7 @@ export default function MessagesView({ conversations, agentActive }: Props) {
                       <div className="mt-1">
                         <span
                           className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold"
-                          style={{ backgroundColor: '#E91E63' }}
+                          style={{ backgroundColor: '#4f39f6' }}
                         >
                           {conv.unreadCount}
                         </span>
@@ -133,7 +133,7 @@ export default function MessagesView({ conversations, agentActive }: Props) {
             {/* Chat Header */}
             <div className="bg-white border-b border-gray-200 px-5 py-4 flex items-center gap-3 shadow-sm">
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white"
-                style={{ backgroundColor: '#E91E63' }}>
+                style={{ backgroundColor: '#4f39f6' }}>
                 {selected.name[0]?.toUpperCase()}
               </div>
               <div>
@@ -164,7 +164,7 @@ export default function MessagesView({ conversations, agentActive }: Props) {
                             ? "text-white rounded-tr-sm"
                             : "bg-white text-gray-800 rounded-tl-sm"
                         }`}
-                        style={isOutbound ? { backgroundColor: '#E91E63' } : {}}
+                        style={isOutbound ? { backgroundColor: '#4f39f6' } : {}}
                       >
                         {msg.content}
                       </div>
@@ -206,11 +206,11 @@ export default function MessagesView({ conversations, agentActive }: Props) {
                   <input
                     type="text"
                     placeholder="Ketik pesan balasan..."
-                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-pink-300"
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-indigo-300"
                   />
                   <button
                     className="px-5 py-3 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition"
-                    style={{ backgroundColor: '#E91E63' }}
+                    style={{ backgroundColor: '#4f39f6' }}
                   >
                     Kirim
                   </button>

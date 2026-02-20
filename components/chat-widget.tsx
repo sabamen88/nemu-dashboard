@@ -208,7 +208,7 @@ export default function ChatWidget() {
       <button
         onClick={handleOpen}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-white transition-all duration-300 hover:scale-110 ${open ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}
-        style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+        style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
         aria-label="Buka Nemu Assistant"
       >
         <span className="text-2xl">🤖</span>
@@ -231,14 +231,14 @@ export default function ChatWidget() {
         {/* Header */}
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-t-2xl"
-          style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}
+          style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}
         >
           <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
             🤖
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm">Nemu Assistant</p>
-            <p className="text-pink-200 text-xs">
+            <p className="text-indigo-200 text-xs">
               {loading ? "Sedang mengetik..." : "Online · Siap membantu"}
             </p>
           </div>
@@ -268,7 +268,7 @@ export default function ChatWidget() {
             >
               {msg.role === "assistant" && (
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1"
-                  style={{ background: "linear-gradient(135deg, #E91E63, #C2185B)" }}>
+                  style={{ background: "linear-gradient(135deg, #4f39f6, #625fff)" }}>
                   🤖
                 </div>
               )}
@@ -279,7 +279,7 @@ export default function ChatWidget() {
                       ? "text-white rounded-tr-sm"
                       : "bg-gray-100 text-gray-800 rounded-tl-sm"
                   }`}
-                  style={msg.role === "user" ? { backgroundColor: "#E91E63" } : {}}
+                  style={msg.role === "user" ? { backgroundColor: "#4f39f6" } : {}}
                 >
                   {msg.content === "" && loading ? (
                     <span className="flex gap-1 items-center py-0.5">
@@ -303,14 +303,14 @@ export default function ChatWidget() {
                   key={qr}
                   onClick={() => sendMessage(qr)}
                   className="text-xs px-3 py-1.5 rounded-full border font-medium transition hover:text-white hover:border-transparent"
-                  style={{ borderColor: "#E91E63", color: "#E91E63" }}
+                  style={{ borderColor: "#4f39f6", color: "#4f39f6" }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E91E63";
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#4f39f6";
                     (e.currentTarget as HTMLButtonElement).style.color = "white";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLButtonElement).style.backgroundColor = "";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#E91E63";
+                    (e.currentTarget as HTMLButtonElement).style.color = "#4f39f6";
                   }}
                 >
                   {qr}
@@ -331,13 +331,13 @@ export default function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tanya Nemu Assistant..."
               disabled={loading}
-              className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-gray-50 disabled:opacity-60"
+              className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-gray-50 disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition hover:opacity-90 disabled:opacity-40 flex-shrink-0"
-              style={{ backgroundColor: "#E91E63" }}
+              style={{ backgroundColor: "#4f39f6" }}
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

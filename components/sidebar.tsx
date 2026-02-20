@@ -31,15 +31,13 @@ export default function Sidebar({ seller }: { seller: Seller }) {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-100">
         <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E91E63' }}>
-            <span className="text-white text-sm font-bold">N</span>
-          </div>
-          <div>
-            <span className="font-bold text-xl leading-none" style={{ color: '#E91E63' }}>nemu</span>
-            <span className="font-bold text-xl leading-none text-gray-900">AI</span>
-          </div>
+          <img
+            src="https://cdn.jsdelivr.net/gh/sabamen88/nemu-assets@main/brand/nemu-logo.png"
+            alt="Nemu AI"
+            className="h-7 w-auto"
+          />
         </Link>
-        <p className="text-xs text-gray-400 mt-2 ml-10">Seller Dashboard</p>
+        <p className="text-xs text-gray-400 mt-2">Seller Dashboard</p>
       </div>
 
       {/* Agent Status Banner */}
@@ -78,7 +76,7 @@ export default function Sidebar({ seller }: { seller: Seller }) {
                   ? "text-white shadow-sm"
                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               )}
-              style={isActive ? { backgroundColor: '#E91E63' } : {}}
+              style={isActive ? { backgroundColor: '#4f39f6' } : {}}
             >
               <span className="text-base">{emoji}</span>
               <span>{label}</span>
@@ -116,12 +114,12 @@ export default function Sidebar({ seller }: { seller: Seller }) {
     <>
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E91E63' }}>
-            <span className="text-white text-xs font-bold">N</span>
-          </div>
-          <span className="font-bold text-lg" style={{ color: '#E91E63' }}>nemu</span>
-          <span className="font-bold text-lg text-gray-900">AI</span>
+        <Link href="/dashboard" className="flex items-center">
+          <img
+            src="https://cdn.jsdelivr.net/gh/sabamen88/nemu-assets@main/brand/nemu-logo.png"
+            alt="Nemu AI"
+            className="h-7 w-auto"
+          />
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}

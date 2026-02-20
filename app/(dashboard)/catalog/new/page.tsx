@@ -180,9 +180,9 @@ export default function NewProductPage() {
                 </div>
               ))}
               {uploadingIndex !== null && (
-                <div className="w-24 h-24 rounded-xl border-2 border-dashed border-pink-300 flex flex-col items-center justify-center gap-1 bg-pink-50">
-                  <div className="w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-xs text-pink-500">Upload...</span>
+                <div className="w-24 h-24 rounded-xl border-2 border-dashed border-indigo-300 flex flex-col items-center justify-center gap-1 bg-indigo-50">
+                  <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs text-indigo-500">Upload...</span>
                 </div>
               )}
             </div>
@@ -208,11 +208,11 @@ export default function NewProductPage() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingIndex !== null}
-                    className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-600 hover:border-pink-400 hover:text-pink-600 hover:bg-pink-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploadingIndex !== null ? (
                       <>
-                        <span className="w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
                         Mengupload...
                       </>
                     ) : (
@@ -241,7 +241,7 @@ export default function NewProductPage() {
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
                     placeholder="https://example.com/foto-produk.jpg"
-                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImageUrl())}
                   />
                   <button
@@ -249,7 +249,7 @@ export default function NewProductPage() {
                     onClick={addImageUrl}
                     disabled={!newImageUrl.trim()}
                     className="px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition hover:opacity-90 disabled:opacity-50"
-                    style={{ backgroundColor: "#E91E63" }}
+                    style={{ backgroundColor: "#4f39f6" }}
                   >
                     + Tambah
                   </button>
@@ -274,7 +274,7 @@ export default function NewProductPage() {
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               placeholder="contoh: Kaos Polos Premium Cotton"
               required
             />
@@ -285,7 +285,7 @@ export default function NewProductPage() {
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
@@ -308,12 +308,12 @@ export default function NewProductPage() {
                   const num = e.target.value.replace(/\D/g, "");
                   setForm({ ...form, price: num });
                 }}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
                 placeholder="85000"
                 required
               />
               {priceNum > 0 && (
-                <p className="text-xs mt-1.5 font-medium" style={{ color: "#E91E63" }}>
+                <p className="text-xs mt-1.5 font-medium" style={{ color: "#4f39f6" }}>
                   {formatRupiah(priceNum)}
                 </p>
               )}
@@ -326,7 +326,7 @@ export default function NewProductPage() {
                 min="0"
                 value={form.stock}
                 onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               />
             </div>
           </div>
@@ -338,7 +338,7 @@ export default function NewProductPage() {
               min="0"
               value={form.weight}
               onChange={(e) => setForm({ ...form, weight: e.target.value })}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               placeholder="Misal: 250"
             />
           </div>
@@ -351,7 +351,7 @@ export default function NewProductPage() {
                 onClick={generateDescription}
                 disabled={generatingDesc || !form.name}
                 className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition hover:opacity-90 disabled:opacity-50"
-                style={{ backgroundColor: "#E91E63" }}
+                style={{ backgroundColor: "#4f39f6" }}
               >
                 {generatingDesc ? (
                   <>
@@ -369,7 +369,7 @@ export default function NewProductPage() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={5}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
               placeholder="Deskripsikan produkmu — bahan, ukuran, keunggulan, dll. Atau klik ✨ Generate Deskripsi AI!"
             />
           </div>
@@ -393,7 +393,7 @@ export default function NewProductPage() {
             type="submit"
             disabled={loading || !form.name || !form.price}
             className="flex-1 text-white py-3.5 rounded-xl font-semibold transition hover:opacity-90 disabled:opacity-40 shadow-sm"
-            style={{ backgroundColor: "#E91E63" }}
+            style={{ backgroundColor: "#4f39f6" }}
           >
             {loading ? "Menyimpan..." : "💾 Simpan Produk"}
           </button>

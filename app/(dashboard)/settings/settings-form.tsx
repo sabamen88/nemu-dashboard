@@ -51,7 +51,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
             value={form.storeName}
             onChange={(e) => setForm({ ...form, storeName: e.target.value })}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
-            style={{ '--tw-ring-color': '#E91E63' } as React.CSSProperties}
+            style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
           />
         </div>
 
@@ -62,7 +62,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 resize-none"
-            style={{ '--tw-ring-color': '#E91E63' } as React.CSSProperties}
+            style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
             placeholder="Ceritakan tentang toko kamu..."
           />
         </div>
@@ -73,7 +73,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 bg-white"
-            style={{ '--tw-ring-color': '#E91E63' } as React.CSSProperties}
+            style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
           >
             {CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
@@ -92,7 +92,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="flex-1 border border-gray-200 rounded-r-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': '#E91E63' } as React.CSSProperties}
+              style={{ '--tw-ring-color': '#4f39f6' } as React.CSSProperties}
               placeholder="8123456789"
             />
           </div>
@@ -102,7 +102,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
           onClick={handleSave}
           disabled={saving}
           className="w-full py-3 text-white rounded-xl text-sm font-semibold transition hover:opacity-90 disabled:opacity-50 shadow-sm"
-          style={{ backgroundColor: '#E91E63' }}
+          style={{ backgroundColor: '#4f39f6' }}
         >
           {saving ? "Menyimpan..." : saved ? "✅ Tersimpan!" : "💾 Simpan Perubahan"}
         </button>
@@ -121,7 +121,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
             <button
               onClick={() => copyToClipboard(`https://${storeUrl}`)}
               className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
-              style={{ backgroundColor: '#E91E63' }}
+              style={{ backgroundColor: '#4f39f6' }}
             >
               📋 Salin
             </button>
@@ -138,7 +138,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
             <button
               onClick={() => copyToClipboard(seller.inviteCode)}
               className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
-              style={{ backgroundColor: '#E91E63' }}
+              style={{ backgroundColor: '#4f39f6' }}
             >
               📋 Salin
             </button>
@@ -160,7 +160,7 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
               <button
                 onClick={() => copyToClipboard(seller.agentWalletAddress!)}
                 className="px-4 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex-shrink-0"
-                style={{ backgroundColor: '#E91E63' }}
+                style={{ backgroundColor: '#4f39f6' }}
               >
                 📋 Salin
               </button>
@@ -173,12 +173,12 @@ export default function SettingsForm({ seller }: { seller: Seller }) {
       {/* Founding Seller */}
       {seller.isFoundingSeller && (
         <div className="rounded-2xl p-5 text-white"
-          style={{ background: 'linear-gradient(135deg, #E91E63, #C2185B)' }}>
+          style={{ background: 'linear-gradient(135deg, #4f39f6, #625fff)' }}>
           <div className="flex items-center gap-3 mb-3">
             <span className="text-3xl">🏆</span>
             <p className="font-bold text-lg">Founding Seller</p>
           </div>
-          <p className="text-pink-100 text-sm">
+          <p className="text-indigo-100 text-sm">
             Selamat! Kamu adalah bagian dari komunitas founding seller Nemu AI. 
             Nikmati komisi 0%, akses beta fitur eksklusif, dan badge Founding Seller di toko kamu.
           </p>

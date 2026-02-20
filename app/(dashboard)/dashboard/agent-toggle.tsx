@@ -40,7 +40,7 @@ export default function AgentToggle({ seller }: { seller: Seller }) {
           onClick={activate}
           disabled={loading}
           className="w-full text-white py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50 shadow-sm"
-          style={{ backgroundColor: '#E91E63' }}
+          style={{ backgroundColor: '#4f39f6' }}
         >
           {loading ? "Menyiapkan Agen..." : "🤖 Aktifkan Agen AI"}
         </button>
@@ -91,7 +91,7 @@ export default function AgentToggle({ seller }: { seller: Seller }) {
         <button
           onClick={openChatWidget}
           className="w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-white transition hover:opacity-90 shadow-sm"
-          style={{ backgroundColor: "#E91E63" }}
+          style={{ backgroundColor: "#4f39f6" }}
         >
           💬 Chat dengan AI Sekarang
         </button>

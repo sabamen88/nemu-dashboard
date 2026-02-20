@@ -38,7 +38,7 @@ export default async function CatalogPage({
           <Link
             href="/catalog/new"
             className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl shadow-sm hover:opacity-90 transition"
-            style={{ backgroundColor: '#E91E63' }}
+            style={{ backgroundColor: '#4f39f6' }}
           >
             <span>+</span> Tambah Produk
           </Link>
@@ -62,7 +62,7 @@ export default async function CatalogPage({
                   ? "text-white border-transparent shadow-sm"
                   : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
               }`}
-              style={isActive ? { backgroundColor: '#E91E63', borderColor: '#E91E63' } : {}}
+              style={isActive ? { backgroundColor: '#4f39f6', borderColor: '#4f39f6' } : {}}
             >
               {label}
               <span className={`ml-2 px-1.5 py-0.5 rounded-full text-xs ${

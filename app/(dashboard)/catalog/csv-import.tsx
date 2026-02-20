@@ -199,7 +199,7 @@ export default function CsvImportButton() {
                 onClick={handleImport}
                 disabled={loading}
                 className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl hover:opacity-90 transition disabled:opacity-50"
-                style={{ backgroundColor: "#E91E63" }}
+                style={{ backgroundColor: "#4f39f6" }}
               >
                 {loading ? "Mengimpor..." : `✅ Import ${preview.length} Produk`}
               </button>

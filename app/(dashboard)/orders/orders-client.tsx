@@ -9,7 +9,7 @@ import type { Order } from "@/lib/schema";
 const STATUS_BADGE: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
   confirmed: "bg-blue-100 text-blue-700",
-  shipped: "bg-purple-100 text-purple-700",
+  shipped: "bg-indigo-100 text-indigo-700",
   done: "bg-green-100 text-green-700",
   cancelled: "bg-red-100 text-red-600",
 };
@@ -61,7 +61,7 @@ function OrderActions({ order }: { order: Order }) {
           onClick={() => updateStatus("confirmed")}
           disabled={loading}
           className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition hover:opacity-90 disabled:opacity-60 whitespace-nowrap"
-          style={{ backgroundColor: "#E91E63" }}
+          style={{ backgroundColor: "#4f39f6" }}
         >
           {loading ? <Spinner /> : "✅"} Konfirmasi
         </button>
@@ -81,7 +81,7 @@ function OrderActions({ order }: { order: Order }) {
       <button
         onClick={() => updateStatus("shipped")}
         disabled={loading}
-        className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-purple-100 text-purple-700 border border-purple-200 hover:bg-purple-200 transition disabled:opacity-60 whitespace-nowrap"
+        className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200 transition disabled:opacity-60 whitespace-nowrap"
       >
         {loading ? <Spinner /> : "🚚"} Tandai Dikirim
       </button>
@@ -145,7 +145,7 @@ export default function OrdersClient({
               }`}
               style={
                 isActive
-                  ? { backgroundColor: "#E91E63", borderColor: "#E91E63" }
+                  ? { backgroundColor: "#4f39f6", borderColor: "#4f39f6" }
                   : {}
               }
             >

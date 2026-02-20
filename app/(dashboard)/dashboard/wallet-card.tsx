@@ -34,7 +34,7 @@ export default function WalletCard() {
       <div
         className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 group-hover:opacity-30 transition-opacity"
         style={{
-          background: "radial-gradient(circle, #E91E63, transparent)",
+          background: "radial-gradient(circle, #4f39f6, transparent)",
           transform: "translate(30%, -30%)",
         }}
       />
@@ -62,7 +62,7 @@ export default function WalletCard() {
           <p className="text-xs text-white/40 font-mono">{truncate(address)}</p>
         )}
 
-        <div className="mt-3 flex items-center gap-1 text-xs text-pink-300 group-hover:text-pink-200 transition">
+        <div className="mt-3 flex items-center gap-1 text-xs text-indigo-300 group-hover:text-indigo-200 transition">
           <span>Kelola wallet →</span>
         </div>
       </div>

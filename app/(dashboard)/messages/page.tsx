@@ -122,7 +122,7 @@ export default function MessagesPage() {
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-900">Pesan Pembeli</h2>
-            <span className="text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
               {DEMO_BUYERS.reduce((a, b) => a + b.unread, 0)} baru
             </span>
           </div>
@@ -132,7 +132,7 @@ export default function MessagesPage() {
               onClick={() => setMode("buyer")}
               className={`flex-1 text-xs py-1.5 rounded-lg font-medium transition-colors ${
                 mode === "buyer"
-                  ? "bg-pink-500 text-white"
+                  ? "bg-indigo-500 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -158,18 +158,18 @@ export default function MessagesPage() {
               key={buyer.id}
               onClick={() => setSelectedBuyer(buyer)}
               className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${
-                selectedBuyer.id === buyer.id ? "bg-pink-50 border-l-2 border-l-pink-500" : ""
+                selectedBuyer.id === buyer.id ? "bg-indigo-50 border-l-2 border-l-pink-500" : ""
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                   {buyer.name.slice(-4, -2)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-900 truncate">{buyer.name}</span>
                     {buyer.unread > 0 && (
-                      <span className="bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                      <span className="bg-indigo-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
                         {buyer.unread}
                       </span>
                     )}
@@ -206,7 +206,7 @@ export default function MessagesPage() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Chat Header */}
         <div className="p-4 border-b border-gray-100 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
             {selectedBuyer.name.slice(-4, -2)}
           </div>
           <div>
@@ -245,7 +245,7 @@ export default function MessagesPage() {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "assistant" && (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs mr-2 flex-shrink-0 mt-1">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs mr-2 flex-shrink-0 mt-1">
                   🤖
                 </div>
               )}
@@ -253,7 +253,7 @@ export default function MessagesPage() {
                 <div
                   className={`px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
                     msg.role === "user"
-                      ? "bg-pink-500 text-white rounded-tr-sm"
+                      ? "bg-indigo-500 text-white rounded-tr-sm"
                       : "bg-gray-100 text-gray-800 rounded-tl-sm"
                   }`}
                 >
@@ -286,13 +286,13 @@ export default function MessagesPage() {
                   ? "Ketik pesan sebagai pembeli... (coba: 'ada kaos putih M?')"
                   : "Tanya agen kamu... (coba: 'produk apa yang paling laku?')"
               }
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-gray-50"
+              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 bg-gray-50"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="bg-pink-500 hover:bg-pink-600 disabled:bg-pink-200 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-200 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors"
             >
               {loading ? "..." : "Kirim"}
             </button>

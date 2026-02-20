@@ -121,7 +121,7 @@ export default function WalletPage() {
 
       {loading ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mb-4" />
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mb-4" />
           <p className="text-gray-500">Memuat wallet...</p>
         </div>
       ) : error ? (
@@ -132,7 +132,7 @@ export default function WalletPage() {
           <button
             onClick={fetchWallet}
             className="mt-4 px-4 py-2 text-sm font-semibold text-white rounded-xl hover:opacity-90"
-            style={{ backgroundColor: "#E91E63" }}
+            style={{ backgroundColor: "#4f39f6" }}
           >
             Coba Lagi
           </button>
@@ -147,9 +147,9 @@ export default function WalletPage() {
             >
               {/* Decorative circles */}
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10"
-                style={{ background: "radial-gradient(circle, #E91E63, transparent)", transform: "translate(30%, -30%)" }} />
+                style={{ background: "radial-gradient(circle, #4f39f6, transparent)", transform: "translate(30%, -30%)" }} />
               <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-10"
-                style={{ background: "radial-gradient(circle, #E91E63, transparent)", transform: "translate(-30%, 30%)" }} />
+                style={{ background: "radial-gradient(circle, #4f39f6, transparent)", transform: "translate(-30%, 30%)" }} />
 
               <div className="relative">
                 <div className="flex items-center gap-2 mb-6">
@@ -203,7 +203,7 @@ export default function WalletPage() {
                     alert("Permintaan funding dikirim ke pemilik wallet 🎉");
                   }}
                   className="w-full py-2.5 text-sm font-semibold text-white rounded-xl transition hover:opacity-90"
-                  style={{ backgroundColor: "#E91E63" }}
+                  style={{ backgroundColor: "#4f39f6" }}
                 >
                   🚀 Minta Dana Testnet
                 </button>
@@ -245,7 +245,7 @@ export default function WalletPage() {
                     value={sendTo}
                     onChange={(e) => setSendTo(e.target.value)}
                     placeholder="0x742d35Cc6634C0532925a3b8..."
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     required
                   />
                 </div>
@@ -261,7 +261,7 @@ export default function WalletPage() {
                       value={sendAmount}
                       onChange={(e) => setSendAmount(e.target.value)}
                       placeholder="10.00"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 pr-16"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 pr-16"
                       required
                     />
                     <span className="absolute right-4 top-3 text-sm font-semibold text-gray-400">USDC</span>
@@ -278,7 +278,7 @@ export default function WalletPage() {
                   type="submit"
                   disabled={sending || !sendTo || !sendAmount}
                   className="w-full py-3 text-sm font-semibold text-white rounded-xl transition hover:opacity-90 disabled:opacity-40"
-                  style={{ backgroundColor: "#E91E63" }}
+                  style={{ backgroundColor: "#4f39f6" }}
                 >
                   {sending ? "Memproses transfer..." : "📤 Kirim USDC"}
                 </button>

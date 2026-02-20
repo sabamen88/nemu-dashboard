@@ -49,9 +49,9 @@ export default async function AnalyticsPage() {
       value: formatRupiah(avgOrderValue),
       sub: "Per transaksi",
       icon: "📈",
-      color: "from-purple-400 to-purple-600",
-      textColor: "text-purple-700",
-      bg: "bg-purple-50",
+      color: "from-indigo-400 to-indigo-600",
+      textColor: "text-indigo-700",
+      bg: "bg-indigo-50",
     },
     {
       label: "Produk Terlaris",
@@ -75,11 +75,11 @@ export default async function AnalyticsPage() {
       {/* Founding Seller Benefit */}
       {seller.isFoundingSeller && (
         <div className="rounded-2xl p-5 flex items-start gap-4 text-white"
-          style={{ background: 'linear-gradient(135deg, #E91E63, #C2185B)' }}>
+          style={{ background: 'linear-gradient(135deg, #4f39f6, #625fff)' }}>
           <span className="text-3xl mt-0.5">🏆</span>
           <div>
             <p className="font-bold text-lg">Keuntungan Founding Seller</p>
-            <div className="mt-2 space-y-1.5 text-pink-100 text-sm">
+            <div className="mt-2 space-y-1.5 text-indigo-100 text-sm">
               <div className="flex items-center gap-2">
                 <span>✓</span>
                 <span>Komisi 0% untuk 1000 transaksi pertama</span>
@@ -137,7 +137,7 @@ export default async function AnalyticsPage() {
                 className="w-full rounded-t-lg opacity-20"
                 style={{
                   height: `${[20, 35, 28, 45, 38, 60, 25][i]}px`,
-                  backgroundColor: '#E91E63',
+                  backgroundColor: '#4f39f6',
                 }}
               />
               <span className="text-xs text-gray-400">{day}</span>
