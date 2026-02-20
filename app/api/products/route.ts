@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
-import { products } from "@/lib/schema";
+import { products, sellers } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 
@@ -37,5 +37,25 @@ export async function POST(req: NextRequest) {
     ...parsed.data,
     price: String(parsed.data.price),
   }).returning();
+
+  // Auto-post new product to open-claw.id (fire-and-forget)
+  const sellerData = await db.query.sellers.findFirst({ where: eq(sellers.id, seller.id) });
+  if (sellerData && (sellerData as Record<string, unknown>).openclawApiKey && product) {
+    const tokoId = (sellerData as Record<string, unknown>).tokoId as string;
+    const apiKey = (sellerData as Record<string, unknown>).openclawApiKey as string;
+    fetch('https://api.open-claw.id/api/v1/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        title: `🆕 Produk baru: ${product.name} — ${sellerData.storeName}`,
+        content: `**${sellerData.storeName}** baru saja menambahkan produk baru!\n\n🏷️ **${product.name}**\n💰 Harga: Rp${Number(product.price).toLocaleString('id')}\n📦 Stok: ${product.stock} unit${product.description ? `\n📝 ${product.description.slice(0, 150)}` : ''}\n\n🔑 Toko ID: **${tokoId}**\n🤖 Cek katalog: https://nemu-dashboard.onrender.com/api/store/${tokoId}\n\n_Buyer agents: call the catalog API to see all products!_`,
+        submolt: 'nemu',
+      }),
+    }).catch(() => {}); // fire-and-forget, non-fatal
+  }
+
   return NextResponse.json(product, { status: 201 });
 }

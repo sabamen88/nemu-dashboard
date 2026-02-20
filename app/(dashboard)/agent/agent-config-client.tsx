@@ -35,6 +35,8 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
   const [error, setError] = useState("");
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"idle" | "success" | "error">("idle");
+  const [postingToOpenclaw, setPostingToOpenclaw] = useState(false);
+  const [openclawPostDone, setOpenclawPostDone] = useState(false);
 
   const isActive = seller.agentStatus === "active";
   const chatflowId = (seller as Record<string, unknown>).agentChatflowId as string | undefined;
@@ -84,6 +86,28 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
       setError("Gagal menyimpan kepribadian AI");
     } finally {
       setSavingPrompt(false);
+    }
+  }
+
+  async function handleOpenclawPost() {
+    setPostingToOpenclaw(true);
+    setOpenclawPostDone(false);
+    const tokoId = (seller as Record<string, unknown>).tokoId as string;
+    try {
+      await fetch('/api/openclaw/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `🛍️ Update dari ${seller.storeName}`,
+          content: `Halo agen-agen! **${seller.storeName}** hadir di Nemu AI Indonesia.\n\n📦 Kategori: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Kunjungi: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents — cek katalog kami sekarang! 🚀`,
+        }),
+      });
+      setOpenclawPostDone(true);
+      setTimeout(() => setOpenclawPostDone(false), 5000);
+    } catch {
+      // non-fatal
+    } finally {
+      setPostingToOpenclaw(false);
     }
   }
 
@@ -243,6 +267,47 @@ export default function AgentConfigClient({ seller, agentMsgToday, flowiseUrl }:
         )}
       </div>
 
+      {/* open-claw.id section — show when agent is active */}
+      {isActive && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h2 className="text-base font-semibold text-gray-800 mb-4">🌐 open-claw.id — Agent Social Network</h2>
+
+          {(seller as Record<string, unknown>).openclawClaimUrl ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <span>⚠️</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-800">Klaim agent kamu di open-claw.id</p>
+                  <p className="text-xs text-amber-600 mt-0.5">Agent sudah dibuat — klaim untuk kontrol penuh</p>
+                </div>
+                <a
+                  href={(seller as Record<string, unknown>).openclawClaimUrl as string}
+                  target="_blank"
+                  rel="noopener"
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg text-white flex-shrink-0"
+                  style={{ backgroundColor: '#7B5CF0' }}
+                >
+                  Klaim →
+                </a>
+              </div>
+              {/* Manual post button */}
+              <button
+                onClick={handleOpenclawPost}
+                disabled={postingToOpenclaw}
+                className="w-full text-sm font-medium py-2.5 rounded-xl border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 transition disabled:opacity-50"
+              >
+                {postingToOpenclaw ? '⏳ Posting...' : '📢 Post ke open-claw.id'}
+              </button>
+              {openclawPostDone && <p className="text-xs text-green-600 text-center">✅ Post berhasil dikirim!</p>}
+            </div>
+          ) : (
+            <div className="p-4 bg-gray-50 rounded-xl text-center">
+              <p className="text-sm text-gray-500">Aktifkan agen AI untuk terhubung ke open-claw.id</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Test Agent Panel */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h2 className="text-base font-semibold text-gray-800 mb-2">
@@ -326,6 +391,30 @@ Fokus pada produk [kategori toko] dan berikan rekomendasi yang personal.`}
           </button>
         )}
       </div>
+
+      {/* open-claw.id Agent Social Network */}
+      {seller.openclawClaimUrl && (
+        <div className="mt-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50">
+          <h3 className="font-semibold text-gray-900 text-sm mb-2">🦞 open-claw.id Agent</h3>
+          {seller.openclawApiKey ? (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-600">
+                Agen AI toko kamu sudah terdaftar di open-claw.id — platform sosial untuk AI agents.
+                Produk dan info toko kamu otomatis diposting di sana agar bisa ditemukan buyer agents.
+              </p>
+              <a href={seller.openclawClaimUrl} target="_blank" rel="noopener"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:underline">
+                🔗 Klaim agen kamu di open-claw.id →
+              </a>
+              <p className="text-xs text-gray-400">
+                Setelah diklaim, buyer AI agents di seluruh dunia bisa menemukan toko kamu.
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Aktifkan agen AI untuk auto-register di open-claw.id</p>
+          )}
+        </div>
+      )}
 
       {/* Technical Info (collapsed by default) */}
       {chatflowId && (

@@ -20,6 +20,11 @@ export const sellers = pgTable("sellers", {
   agentChatflowId: text("agent_chatflow_id"), // Flowise chatflow ID
   aiCustomPrompt: text("ai_custom_prompt"), // Custom system prompt personality
   autoReply: boolean("auto_reply").notNull().default(true),
+  // open-claw.id Agent Social Network
+  openclawApiKey: text("openclaw_api_key"),
+  openclawClaimUrl: text("openclaw_claim_url"),
+  openclawAgentId: text("openclaw_agent_id"),
+  openclawAgentName: text("openclaw_agent_name"),
   // Meta
   tokoId: text("toko_id").unique(),
   isFoundingSeller: boolean("is_founding_seller").notNull().default(false),

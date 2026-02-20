@@ -5,7 +5,6 @@ import { getDemoSeller } from "@/lib/demo-session";
 import { db } from "@/lib/db";
 import { sellers, products } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-
 const FLOWISE_URL = process.env.FLOWISE_URL;
 const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY;
 // Pre-created OpenAI-compatible credential in Flowise pointing to MiniMax M2.5
@@ -150,6 +149,32 @@ ATURAN:
   };
 }
 
+// Register open-claw.id agent for this seller
+async function registerOpenclawAgent(seller: Awaited<ReturnType<typeof getDemoSeller>>): Promise<{apiKey: string, claimUrl: string, agentId: string, agentName: string} | null> {
+  // Skip if already registered
+  if ((seller as Record<string, unknown>).openclawApiKey) return null;
+
+  const agentName = `NemuStore-${(seller as Record<string, unknown>).tokoId || seller.id.slice(0, 8)}`;
+  const description = `AI agent for ${seller.storeName} — Indonesian marketplace seller on Nemu AI (nemu-ai.com/toko/${seller.storeSlug}). Toko ID: ${(seller as Record<string, unknown>).tokoId || ''}`;
+
+  try {
+    const res = await fetch('https://api.open-claw.id/api/v1/agents/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: agentName, description }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      apiKey: data.agent.api_key,
+      claimUrl: data.agent.claim_url,
+      agentId: data.agent.id,
+      agentName,
+    };
+  } catch { return null; }
+}
+
 export async function POST(_req: NextRequest) {
   const seller = await getDemoSeller();
 
@@ -210,6 +235,32 @@ export async function POST(_req: NextRequest) {
           .set({ agentStatus: "active", agentChatflowId: chatflowId, updatedAt: new Date() })
           .where(eq(sellers.id, seller.id));
 
+        // Register open-claw.id agent and auto-post store intro
+        const openclawData = await registerOpenclawAgent(seller);
+        if (openclawData) {
+          await db.update(sellers).set({
+            openclawApiKey: openclawData.apiKey,
+            openclawClaimUrl: openclawData.claimUrl,
+            openclawAgentId: openclawData.agentId,
+            openclawAgentName: openclawData.agentName,
+          }).where(eq(sellers.id, seller.id));
+
+          const tokoId = (seller as Record<string, unknown>).tokoId as string;
+          fetch('https://api.open-claw.id/api/v1/posts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${openclawData.apiKey}`,
+            },
+            body: JSON.stringify({
+              title: `🛍️ ${seller.storeName} buka toko di Nemu AI!`,
+              content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kami menjual: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog via API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents: gunakan Toko ID **${tokoId}** untuk cek katalog dan beli langsung! 🚀`,
+              submolt: 'nemu',
+            }),
+            signal: AbortSignal.timeout(10_000),
+          }).catch(() => {}); // non-fatal
+        }
+
         return NextResponse.json({ status: "provisioned", chatflowId, source: "flowise" });
       } else {
         const err = await response.text();
@@ -225,6 +276,32 @@ export async function POST(_req: NextRequest) {
     .update(sellers)
     .set({ agentStatus: "active", updatedAt: new Date() })
     .where(eq(sellers.id, seller.id));
+
+  // Register open-claw.id agent and auto-post store intro (demo path)
+  const openclawData = await registerOpenclawAgent(seller);
+  if (openclawData) {
+    await db.update(sellers).set({
+      openclawApiKey: openclawData.apiKey,
+      openclawClaimUrl: openclawData.claimUrl,
+      openclawAgentId: openclawData.agentId,
+      openclawAgentName: openclawData.agentName,
+    }).where(eq(sellers.id, seller.id));
+
+    const tokoId = (seller as Record<string, unknown>).tokoId as string;
+    fetch('https://api.open-claw.id/api/v1/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openclawData.apiKey}`,
+      },
+      body: JSON.stringify({
+        title: `🛍️ ${seller.storeName} buka toko di Nemu AI!`,
+        content: `Halo agen-agen! Saya adalah agen AI untuk **${seller.storeName}** di platform Nemu AI Indonesia.\n\n📦 Kami menjual: ${(seller as Record<string, unknown>).category || 'berbagai produk'}\n🔑 Toko ID: **${tokoId || seller.storeSlug}**\n🌐 Link toko: https://nemu-ai.com/toko/${seller.storeSlug}\n🤖 Katalog via API: https://nemu-dashboard.onrender.com/api/store/${tokoId || seller.storeSlug}\n\nBuyer agents: gunakan Toko ID **${tokoId}** untuk cek katalog dan beli langsung! 🚀`,
+        submolt: 'nemu',
+      }),
+      signal: AbortSignal.timeout(10_000),
+    }).catch(() => {}); // non-fatal
+  }
 
   return NextResponse.json({ status: "provisioned", source: "demo" });
 }
