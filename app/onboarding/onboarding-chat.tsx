@@ -10,13 +10,11 @@ interface ChatMessage {
 }
 
 const STEPS = [
-  { id: "language", label: "Bahasa" },
-  { id: "welcome", label: "Halo" },
+  { id: "language", label: "Mulai" },
   { id: "store_name", label: "Nama Toko" },
   { id: "category", label: "Kategori" },
   { id: "description", label: "Deskripsi" },
   { id: "phone", label: "WhatsApp" },
-  { id: "complete", label: "Selesai 🎉" },
 ];
 
 const CATEGORIES = [
@@ -202,14 +200,11 @@ export default function OnboardingChat() {
     handleSend(input);
   }
 
-  const stepIndex = STEPS.findIndex((s) => s.id === step);
-  const progressPercent = Math.round(((stepIndex + 1) / STEPS.length) * 100);
+  const stepIndex = step === "complete" ? STEPS.length : Math.max(0, STEPS.findIndex((s) => s.id === step));
+  const progressPercent = Math.round((stepIndex / STEPS.length) * 100);
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(180deg, #f5f3ff 0%, #f8f9fa 15%)" }}
-    >
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
@@ -217,17 +212,14 @@ export default function OnboardingChat() {
           <img
             src="https://cdn.jsdelivr.net/gh/sabamen88/nemu-assets@main/brand/nemu-logo.png"
             alt="Nemu AI"
-            className="h-7 w-auto flex-shrink-0"
+            className="h-8 w-auto flex-shrink-0 object-contain"
           />
           <div className="flex-1 min-w-0">
-            <p className="text-indigo-500 text-xs truncate">
-              Setup toko online kamu — cuma 2 menit! 🛍️
-            </p>
+            <p className="text-gray-500 text-xs font-medium">Setup toko — cuma 2 menit 🛍️</p>
           </div>
-          {/* Skip button */}
           <button
             onClick={() => router.push("/dashboard?skip_onboarding=1")}
-            className="text-gray-400 text-xs hover:text-indigo-600 transition px-2 py-1 rounded-lg hover:bg-indigo-50 flex-shrink-0"
+            className="text-xs font-medium text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-200 transition flex-shrink-0"
           >
             Lewati
           </button>
@@ -241,43 +233,40 @@ export default function OnboardingChat() {
           />
         </div>
 
-        {/* Step labels (dots) */}
-        <div className="max-w-lg mx-auto px-4 py-2 flex items-center justify-between">
-          {STEPS.slice(0, 6).map((s, i) => (
-            <div key={s.id} className="flex flex-col items-center gap-0.5">
+        {/* Step dots — 5 steps */}
+        <div className="max-w-lg mx-auto px-6 py-2.5 flex items-center gap-2">
+          {STEPS.map((s, i) => (
+            <div key={s.id} className="flex items-center gap-2 flex-1">
               <div
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i <= stepIndex ? "scale-125" : "bg-gray-200"
-                }`}
-                style={i <= stepIndex ? { backgroundColor: "#7B5CF0" } : {}}
+                className="h-1.5 flex-1 rounded-full transition-all duration-500"
+                style={{ backgroundColor: i <= stepIndex ? "#7B5CF0" : "#E5E7EB" }}
               />
-              <span
-                className={`text-[9px] font-medium transition-all hidden sm:block ${
-                  i === stepIndex ? "text-indigo-600" : "text-gray-400"
-                }`}
-              >
-                {s.label}
-              </span>
             </div>
           ))}
-          {/* Complete dot */}
-          <div className="flex flex-col items-center gap-0.5">
-            <div
-              className={`w-2 h-2 rounded-full transition-all ${
-                step === "complete" ? "scale-125" : "bg-gray-200"
-              }`}
-              style={step === "complete" ? { backgroundColor: "#7B5CF0" } : {}}
-            />
-            <span className="text-[9px] font-medium text-gray-400 hidden sm:block">
-              🎉
-            </span>
-          </div>
         </div>
       </div>
 
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-lg mx-auto px-4 py-4 space-y-3 pb-36">
+
+          {/* Welcome hero — disappears after first user message */}
+          {messages.filter(m => m.role === "user").length === 0 && (
+            <div className="flex flex-col items-center text-center pt-6 pb-4">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-md" style={{ background: "linear-gradient(135deg, #7B5CF0, #625fff)" }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2 L13.5 9.5 L21 11 L13.5 12.5 L12 20 L10.5 12.5 L3 11 L10.5 9.5 Z"/>
+                  <circle cx="7" cy="4" r="1" fill="white" opacity="0.7"/>
+                  <circle cx="17" cy="4" r="1" fill="white" opacity="0.7"/>
+                  <circle cx="7" cy="18" r="1" fill="white" opacity="0.7"/>
+                  <circle cx="17" cy="18" r="1" fill="white" opacity="0.7"/>
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Selamat Datang di Nemu AI! 👋</h2>
+              <p className="text-gray-500 text-sm mt-2 max-w-xs">Saya KIRA, asisten AI kamu. Buka toko online dalam 2 menit — tanpa ribet, tanpa formulir!</p>
+            </div>
+          )}
+
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -317,6 +306,25 @@ export default function OnboardingChat() {
 
           {/* AI typing indicator */}
           {isTyping && <TypingIndicator />}
+
+          {/* Language tap buttons — shown instead of typing */}
+          {step === "language" && !loading && messages.filter(m => m.role === "ai").length > 0 && (
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => handleSend("Indonesia")}
+                className="flex-1 py-3.5 rounded-2xl border-2 font-semibold text-sm transition-all active:scale-95 hover:shadow-md"
+                style={{ borderColor: "#7B5CF0", color: "#7B5CF0", backgroundColor: "#faf5ff" }}
+              >
+                🇮🇩 Bahasa Indonesia
+              </button>
+              <button
+                onClick={() => handleSend("English")}
+                className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 font-semibold text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-95 hover:shadow-md"
+              >
+                🇺🇸 English
+              </button>
+            </div>
+          )}
 
           {/* Category quick reply chips */}
           {step === "category" && !loading && messages.length > 0 && (
